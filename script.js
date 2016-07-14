@@ -6,20 +6,18 @@ var END_YEAR = 2015;
 var MAX_RADIUS = 50;
 var TRANSITION_DURATION = 750;
 
-d3.json('data/data.json', function (error, data) {
-  if (error) { throw error; }
-  app.initialize(data);
-});
+
 
 // // d3.queue() enables us to load multiple data files. Following the example below, we make
 // // additional .defer() calls with additional data files, and they are returned as results[1],
 // // results[2], etc., once they have all finished downloading.
-// d3.queue()
-//   .defer(d3.json, 'data/data.json')
-//   .awaitAll(function (error, results) {
-//     if (error) { throw error; }
-//     app.initialize(results[0]);
-//   });
+ d3.queue()
+   .defer(d3.json, 'data/data.json')
+  //add second file: .defer(d3.csv,...)
+   .awaitAll(function (error, results) {
+     if (error) { throw error; }
+     app.initialize(results[0]); //0 = results from first file
+   });
 
 app = {
   data: [],
@@ -55,6 +53,7 @@ app = {
 
     setInterval(incrementYear, TRANSITION_DURATION);
     // d3.interval(incrementYear, TRANSITION_DURATION);
+    // d3.timer is similar
   },
 
   resize: function () {
@@ -87,30 +86,28 @@ function Chart(selector) {
 
   // SCALES
 
-  chart.x = d3.scale.linear()
+  chart.x = d3.scaleLinear()
     .domain([0, d3.max(app.data, function (d) { return d.total_fertility; })])
     .range([0, chart.width])
     .nice();
 
-  chart.y = d3.scale.linear()
+  chart.y = d3.scaleLinear()
     .domain([0, d3.max(app.data, function (d) { return d.life_expectancy; })])
     .range([chart.height, 0])
     .nice();
 
-  chart.r = d3.scale.sqrt()
+  chart.r = d3.scaleSqrt()
     .domain([0, d3.max(app.data, function (d) { return d.population; })])
     .range([0, MAX_RADIUS]);
 
-  chart.color = d3.scale.category10();
+  chart.color = d3.scaleOrdinal(d3.schemeCategory10);
 
   // AXES
 
-  var xAxis = d3.svg.axis()
-    .orient('bottom')
+  var xAxis = d3.axisBottom()
     .scale(chart.x);
 
-  var yAxis = d3.svg.axis()
-    .orient('left')
+  var yAxis = d3.axisLeft()
     .scale(chart.y);
 
   chart.svg.append('g')
@@ -162,6 +159,8 @@ Chart.prototype = {
 
     var txData = app.data.filter(function (d) { return d.year === app.options.year; });
 
+    var t = d3.transition().duration(TRANSITION_DURATION);// NEW WAY
+
     // UPDATE CHART ELEMENTS
 
     var yearText = d3.selectAll('.year')
@@ -179,16 +178,16 @@ Chart.prototype = {
       .attr('r', 0)  //first set to zero to hide
       .attr('cx', chart.width / 2)
       .attr('cy', chart.height / 2)
-
-    countries
+      .merge(countries) //combines previous and newly appended circles
+    //countries
       .sort(function (a, b) { return b.population - a.population; })  //sort descending to make sure that small circles appear on top
-      .transition().duration(TRANSITION_DURATION)
+      .transition(t)
       .attr('r', function (d) { return chart.r(d.population); })
       .attr('cx', function (d) { return chart.x(d.total_fertility); })
       .attr('cy', function (d) { return chart.y(d.life_expectancy); });
 
     countries.exit()
-      .transition().duration(TRANSITION_DURATION)
+      .transition(t) //.transition().duration(TRANSITION_DURATION)
       .attr('r', 0) //circle decreases to 0 radius
       .remove();
   }
