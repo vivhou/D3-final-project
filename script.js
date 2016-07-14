@@ -34,7 +34,8 @@ app = {
 
     // Here we create each of the components on our page, storing them in an array
     app.components = [
-      new Chart('#chart')
+      new Chart('#chart'),
+
     ];
 
     // Add event listeners and the like here
@@ -58,7 +59,7 @@ app = {
 
   resize: function () {
     app.components.forEach(function (c) { if (c.resize) { c.resize(); }});
-  },
+  },  //calls resize and update for every component
 
   update: function () {
     app.components.forEach(function (c) { if (c.update) { c.update(); }});
@@ -153,7 +154,7 @@ function Chart(selector) {
   chart.update();
 }
 
-Chart.prototype = {
+Chart.prototype = {  
   update: function () {
     var chart = this;
 
@@ -168,18 +169,19 @@ Chart.prototype = {
       .text(app.options.year);
 
     var countries = chart.svg.selectAll('.country')
-      .data(txData);
+      .data(txData, function (d) { return d.country; }); // checks to see if countries exist in data and then function is the key element
+      //which matches countries between years
 
     countries.enter().append('circle')
       .attr('class', 'country')
       .style('fill', function (d) { return chart.color(d.continent); })
       .style('opacity', 0.75)
-      .attr('r', 0)
+      .attr('r', 0)  //first set to zero to hide
       .attr('cx', chart.width / 2)
       .attr('cy', chart.height / 2)
 
     countries
-      .sort(function (a, b) { return b.population - a.population; })
+      .sort(function (a, b) { return b.population - a.population; })  //sort descending to make sure that small circles appear on top
       .transition().duration(TRANSITION_DURATION)
       .attr('r', function (d) { return chart.r(d.population); })
       .attr('cx', function (d) { return chart.x(d.total_fertility); })
@@ -187,7 +189,7 @@ Chart.prototype = {
 
     countries.exit()
       .transition().duration(TRANSITION_DURATION)
-      .attr('r', 0)
+      .attr('r', 0) //circle decreases to 0 radius
       .remove();
   }
 }
