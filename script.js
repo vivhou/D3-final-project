@@ -1,194 +1,109 @@
-var app;
+ <!--map is forked from https://github.com/githamm/us-state-squares -->
+ 
+    var width = 700,
+        height = 400;
 
-// Declaring our constants
-var START_YEAR = 1950;
-var END_YEAR = 2015;
-var MAX_RADIUS = 50;
-var TRANSITION_DURATION = 750;
+    var colorRamp = ['#e50000', '#ffffb2', '#008000'];
 
+    var rateById = d3.map();
 
+    var color = d3.scale.linear()
+      .domain([-3, 2, 13])
+      .range(colorRamp);
 
-// // d3.queue() enables us to load multiple data files. Following the example below, we make
-// // additional .defer() calls with additional data files, and they are returned as results[1],
-// // results[2], etc., once they have all finished downloading.
- d3.queue()
-   .defer(d3.json, 'data/data.json')
-  //add second file: .defer(d3.csv,...)
-   .awaitAll(function (error, results) {
-     if (error) { throw error; }
-     app.initialize(results[0]); //0 = results from first file
-   });
+    var projection = d3.geo.equirectangular()
+      .scale(2000)
+      .center([-96.03542,41.69553])
+      .translate([width / 2, height / 2]);
 
-app = {
-  data: [],
-  components: [],
+    var path = d3.geo.path()
+      .projection(projection);
 
-  options: {
-    year: START_YEAR
-  },
+    var tip = d3.tip()
+      .attr('class', 'd3-tip')
+      .offset([-10, 0])
+      .html(function(d) {
+        return "<strong>" + d.properties.abbr + ": </strong><span>" + rateById.get(d.properties.abbr) + "% difference in math proficiency</span>";
+      })
 
-  initialize: function (data) {
-    app.data = data;
+    var svg = d3.select("body").append("svg")
+      .attr("width", width)
+      .attr("height", height);
 
-    // Here we create each of the components on our page, storing them in an array
-    app.components = [
-      new Chart('#chart'),
+    svg.call(tip);
 
-    ];
+    queue()
+      .defer(d3.json, "../state_squares.geojson")
+      .defer(d3.csv, "/data/map_data.csv", function(d) { rateById.set(d.state, +d.math_diff); })
+      .await(ready);
 
-    // Add event listeners and the like here
+    // Build map and labels
+    function ready(error, us) {
+      svg.append("g")
+          .attr("class", "states")
+        .selectAll("path")
+          .data(us.features)
+        .enter().append("path")
+          .attr("class", function(d) { return d.properties.abbr; })
+          .style("fill", function(d) { console.log(rateById.get(d.properties.abbr));return color(rateById.get(d.properties.abbr))})
+          .attr("d", path)
+          .on('mouseover', tip.show)
+          .on('mouseout', tip.hide);
 
-    // app.resize() will be called anytime the page size is changed
-    d3.select('window').on('resize', app.resize);
-
-    // For demo purposes, let's tick the year every 750ms
-    function incrementYear() {
-      app.options.year += 1;
-      if (app.options.year > END_YEAR) {
-        app.options.year = START_YEAR;
-      }
-
-      app.update();
+      svg.selectAll(".place-label")
+          .data(us.features)
+        .enter().append("text")
+          .attr("class", "place-label")
+          .attr("transform", function(d) { return "translate(" + path.centroid(d) + ")"; })
+          .attr("dy", ".5em")
+          .attr("dx", "-.7em")
+          .text(function(d) { return d.properties.abbr; });
     }
 
-    setInterval(incrementYear, TRANSITION_DURATION);
-    // d3.interval(incrementYear, TRANSITION_DURATION);
-    // d3.timer is similar
-  },
+    // Legend
+    var w = 210,
+      h = 40;
+    var key = d3.select("#legend")
+      .append("svg")
+      .attr("width", w)
+      .attr("height", h);
+    var legend = key.append("defs")
+      .append("svg:linearGradient")
+      .attr("id", "gradient")
+      .attr("y1", "100%")
+      .attr("x1", "0%")
+      .attr("y2", "100%")
+      .attr("x2", "100%")
+      .attr("spreadMethod", "pad");
+    legend.append("stop")
+      .attr("offset", "0%")
+      .attr("stop-color", colorRamp[0])
+      .attr("stop-opacity", 1);
+    legend.append("stop")
+      .attr("offset", "30%")
+      .attr("stop-color", colorRamp[1])
+      .attr("stop-opacity", 1);
+    legend.append("stop")
+      .attr("offset", "100%")
+      .attr("stop-color", colorRamp[2])
+      .attr("stop-opacity", 1);
+    key.append("rect")
+      .attr("width", w - 10)
+      .attr("height", h - 20)
+      .style("fill", "url(#gradient)")
+      .attr("transform", "translate(0,0)");
+    var y = d3.scale.linear()
+      .range([0, 200])
+      .domain([-3, 13]);
+    var yAxis = d3.svg.axis()
+      .scale(y)
+      .ticks(4)
+      .orient("bottom");
+    key.append("g")
+      .attr("class", "y axis")
+      .attr("transform", "translate(10,15)")
+      .call(yAxis);
 
-  resize: function () {
-    app.components.forEach(function (c) { if (c.resize) { c.resize(); }});
-  },  //calls resize and update for every component
+    d3.select(self.frameElement).style("height", height + "px");
 
-  update: function () {
-    app.components.forEach(function (c) { if (c.update) { c.update(); }});
-  }
-}
-
-function Chart(selector) {
-  var chart = this;
-
-  // SVG and MARGINS
-
-  var margin = {
-    top: 15, right: 15, bottom: 40, left: 45
-  };
-
-  chart.width = 600 - margin.left - margin.right;
-  chart.height = 400 - margin.top - margin.bottom;
-
-  chart.svg = d3.select(selector)
-    .append('svg')
-    .attr('width', chart.width + margin.left + margin.right)
-    .attr('height', chart.height + margin.top + margin.bottom)
-    .append('g')
-    .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
-
-  // SCALES
-
-  chart.x = d3.scaleLinear()
-    .domain([0, d3.max(app.data, function (d) { return d.total_fertility; })])
-    .range([0, chart.width])
-    .nice();
-
-  chart.y = d3.scaleLinear()
-    .domain([0, d3.max(app.data, function (d) { return d.life_expectancy; })])
-    .range([chart.height, 0])
-    .nice();
-
-  chart.r = d3.scaleSqrt()
-    .domain([0, d3.max(app.data, function (d) { return d.population; })])
-    .range([0, MAX_RADIUS]);
-
-  chart.color = d3.scaleOrdinal(d3.schemeCategory10);
-
-  // AXES
-
-  var xAxis = d3.axisBottom()
-    .scale(chart.x);
-
-  var yAxis = d3.axisLeft()
-    .scale(chart.y);
-
-  chart.svg.append('g')
-    .attr('class', 'x axis')
-    .attr('transform', 'translate(0,' + chart.height + ')')
-    .call(xAxis)
-    .append('text')
-    .attr('y', 30)
-    .attr('x', chart.width)
-    .style('text-anchor', 'end')
-    .style('fill', '#000')
-    .style('font-weight', 'bold')
-    .text('Fertility (births per woman)');
-
-  chart.svg.append('g')
-    .attr('class', 'y axis')
-    .call(yAxis)
-    .append('text')
-    .attr('transform', 'rotate(-90)')
-    .attr('dy', '.71em')
-    .attr('y', -35)
-    .attr('x', 0)
-    .style('text-anchor', 'end')
-    .style('fill', '#000')
-    .style('font-weight', 'bold')
-    .text('Life expectancy (years)');
-
-  // YEAR LABEL
-
-  chart.svg.append('text')
-    .attr('class', 'year')
-    .attr('x', chart.width / 2)
-    .attr('y', chart.height / 2)
-    .attr('dy', '.35em')
-    .style('text-anchor', 'middle')
-    .style('font-size', '230px')
-    .style('font-weight', 'bold')
-    .style('opacity', 0.2)
-    .text(app.options.year);
-
-  chart.update();
-}
-
-Chart.prototype = {  
-  update: function () {
-    var chart = this;
-
-    // TRANSFORM DATA
-
-    var txData = app.data.filter(function (d) { return d.year === app.options.year; });
-
-    var t = d3.transition().duration(TRANSITION_DURATION);// NEW WAY
-
-    // UPDATE CHART ELEMENTS
-
-    var yearText = d3.selectAll('.year')
-      .transition().delay(TRANSITION_DURATION / 2)
-      .text(app.options.year);
-
-    var countries = chart.svg.selectAll('.country')
-      .data(txData, function (d) { return d.country; }); // checks to see if countries exist in data and then function is the key element
-      //which matches countries between years
-
-    countries.enter().append('circle')
-      .attr('class', 'country')
-      .style('fill', function (d) { return chart.color(d.continent); })
-      .style('opacity', 0.75)
-      .attr('r', 0)  //first set to zero to hide
-      .attr('cx', chart.width / 2)
-      .attr('cy', chart.height / 2)
-      .merge(countries) //combines previous and newly appended circles
-    //countries
-      .sort(function (a, b) { return b.population - a.population; })  //sort descending to make sure that small circles appear on top
-      .transition(t)
-      .attr('r', function (d) { return chart.r(d.population); })
-      .attr('cx', function (d) { return chart.x(d.total_fertility); })
-      .attr('cy', function (d) { return chart.y(d.life_expectancy); });
-
-    countries.exit()
-      .transition(t) //.transition().duration(TRANSITION_DURATION)
-      .attr('r', 0) //circle decreases to 0 radius
-      .remove();
-  }
-}
+ 

@@ -1,14 +1,51 @@
-.section {
-  padding: 1em 0;
-}
+h1, .d3-tip {
+        font-family: 'Quicksand', sans-serif;
+      }
 
-.header {
-  background: linear-gradient(to bottom, #337ab7 0%, #135a97 100%);
-  color: white;
-  padding: 1em 0 2em;
-}
+      #footer {
+        position: absolute;
+        top: 410px;
+        left:500px;
+      }
 
-#chart svg {
-  display: block;
-  margin: 0 auto;
-}
+      #legend {
+        position: absolute;
+      }
+
+      .axis path {
+        fill: none;
+      }
+
+      .states {
+        fill: #333;
+      }
+
+      .states :hover {
+        stroke: #333333;
+        stroke-width: 2.5px;
+      }
+
+      .place,
+      .place-label {
+        fill: #444;
+        font-family: Helvetica;
+        font-weight: bold;
+      }
+
+      p {
+        font-family: 'EB Garamond', serif;
+        font-size: 12px;
+      }
+
+      text {
+        font-family: 'EB Garamond', serif;
+        font-size: 12px;
+        pointer-events: none;
+      }
+
+      .d3-tip {
+        line-height: 1;
+        padding: 10px;
+        background: rgba(0, 0, 0, 0.7);
+        color: #e2e3e3;
+      }

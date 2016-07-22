@@ -1,0 +1,10 @@
+{
+  "name": "map-project",
+  "private": true,
+  "devDependencies": {
+    "reload": "0.7.0"
+  },
+  "scripts": {
+    "watch": "reload -b"
+  }
+}
