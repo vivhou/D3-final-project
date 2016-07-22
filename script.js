@@ -1,25 +1,24 @@
- <!--map is forked from https://github.com/githamm/us-state-squares -->
- 
-    var width = 700,
-        height = 400;
+//map is forked from https://github.com/githamm/us-state-squares 
 
-    var colorRamp = ['#e50000', '#ffffb2', '#008000'];
+var width = 700,
+    height = 400;
 
-    var rateById = d3.map();
+var colorRamp = ['#e50000', '#ffffb2', '#008000'];
 
-    var color = d3.scale.linear()
-      .domain([-3, 2, 13])
-      .range(colorRamp);
+var rateById = d3.map();
 
-    var projection = d3.geo.equirectangular()
-      .scale(2000)
-      .center([-96.03542,41.69553])
-      .translate([width / 2, height / 2]);
+var color = d3.scaleLinear()
+  .domain([-3, 2, 13])
+  .range(colorRamp);
 
-    var path = d3.geo.path()
-      .projection(projection);
+var projection = d3.geoEquirectangular()
+  .scale(2000)
+  .center([-96.03542,41.69553])
+  .translate([width / 2, height / 2]);
 
-    var tip = d3.tip()
+var path = d3.geoPath()
+  .projection(projection);
+/*    var tip = d3.tip()
       .attr('class', 'd3-tip')
       .offset([-10, 0])
       .html(function(d) {
@@ -30,39 +29,58 @@
       .attr("width", width)
       .attr("height", height);
 
-    svg.call(tip);
+    svg.call(tip); */
 
-    queue()
-      .defer(d3.json, "../state_squares.geojson")
-      .defer(d3.csv, "/data/map_data.csv", function(d) { rateById.set(d.state, +d.math_diff); })
-      .await(ready);
+  queue()
+    .defer(d3.json, "../state_squares.geojson")
+    .defer(d3.csv, "/data/map_data.csv", function(d) { rateById.set(d.state, +d.math_diff); })
+    .awaitAll(function(error, results) {
+      if (error) { throw error; }
 
-    // Build map and labels
-    function ready(error, us) {
-      svg.append("g")
-          .attr("class", "states")
-        .selectAll("path")
-          .data(us.features)
-        .enter().append("path")
-          .attr("class", function(d) { return d.properties.abbr; })
-          .style("fill", function(d) { console.log(rateById.get(d.properties.abbr));return color(rateById.get(d.properties.abbr))})
-          .attr("d", path)
-          .on('mouseover', tip.show)
-          .on('mouseout', tip.hide);
+    squaremap = new Choropleth(results[0],results[1]);
+    });
 
-      svg.selectAll(".place-label")
-          .data(us.features)
-        .enter().append("text")
-          .attr("class", "place-label")
-          .attr("transform", function(d) { return "translate(" + path.centroid(d) + ")"; })
-          .attr("dy", ".5em")
-          .attr("dx", "-.7em")
-          .text(function(d) { return d.properties.abbr; });
-    }
+ var margin = {
+  left: 75,
+  right: 50,
+  top: 50,
+  bottom: 75
+  };
+
+
+  var width = 625 - margin.left - margin.right;
+  var height = 625 - margin.top - margin.bottom;
+
+function Choropleth(us) {
+  var chart = this;
+
+  chart.svg = d3.select("#chart1")
+    .append('svg')
+    .attr('width', width + margin.left + margin.right)
+    .attr('height', height + margin.top + margin.bottom)
+    .append('g')
+    .attr("class", "states")
+    .selectAll("path")
+    .data(us.features)
+    .enter().append("path")
+    .attr("class", function(d) { return d.properties.abbr; })
+    .style("fill", function(d) { console.log(rateById.get(d.properties.abbr));return color(rateById.get(d.properties.abbr))})
+    .attr("d", path);
+   // .on('mouseover', tip.show)
+   // .on('mouseout', tip.hide)
+
+  chart.svg = d3.selectAll(".place-label")
+    .data(us.features)
+    .enter().append("text")
+    .attr("class", "place-label")
+    .attr("transform", function(d) { return "translate(" + path.centroid(d) + ")"; }) 
+    .attr("dy", ".5em")
+    .attr("dx", "-.7em")
+    .text(function(d) { return d.properties.abbr; });
 
     // Legend
     var w = 210,
-      h = 40;
+        h = 40;
     var key = d3.select("#legend")
       .append("svg")
       .attr("width", w)
@@ -91,19 +109,21 @@
       .attr("width", w - 10)
       .attr("height", h - 20)
       .style("fill", "url(#gradient)")
-      .attr("transform", "translate(0,0)");
-    var y = d3.scale.linear()
+      .attr("transform", "translate(0,0)")
+    var y = d3.scaleLinear()
       .range([0, 200])
       .domain([-3, 13]);
-    var yAxis = d3.svg.axis()
-      .scale(y)
-      .ticks(4)
-      .orient("bottom");
+    var yAxis = d3.axisLeft()
+      .scale(chart.y)
+      .ticks(4);
+//      .orient("bottom");
     key.append("g")
       .attr("class", "y axis")
       .attr("transform", "translate(10,15)")
       .call(yAxis);
 
     d3.select(self.frameElement).style("height", height + "px");
+  
+} 
 
  
