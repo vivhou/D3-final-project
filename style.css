@@ -16,6 +16,7 @@ h1, .d3-tip {
 
       .axis path {
         fill: none;
+        stroke: #fff;
       }
 
       .states {
@@ -52,3 +53,12 @@ h1, .d3-tip {
         background: rgba(0, 0, 0, 0.7);
         color: #e2e3e3;
       }
+
+    .tooltip {
+       padding: .5em 1em;
+       background: rgba(0,0,0,.75);
+       color: white;
+       font-size: 13px;
+       font-weight: 700;
+       line-height: 1;
+     }

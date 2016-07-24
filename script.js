@@ -65,11 +65,12 @@ function Choropleth(us) {
     .enter().append("path")
     .attr("class", function(d) { return d.properties.abbr; })
     .style("fill", function(d) { console.log(rateById.get(d.properties.abbr));return color(rateById.get(d.properties.abbr))})
-    .attr("d", path);
+    .attr("d", path)
    // .on('mouseover', tip.show)
    // .on('mouseout', tip.hide)
 
-  chart.svg = d3.selectAll(".place-label")
+    chart.svg = d3.selectAll("g")
+    .selectAll(".place-label")
     .data(us.features)
     .enter().append("text")
     .attr("class", "place-label")
@@ -109,18 +110,20 @@ function Choropleth(us) {
       .attr("width", w - 10)
       .attr("height", h - 20)
       .style("fill", "url(#gradient)")
-      .attr("transform", "translate(0,0)")
-    var y = d3.scaleLinear()
+      .attr("transform", "translate(0,0)");
+
+    chart.x = d3.scaleLinear()
       .range([0, 200])
       .domain([-3, 13]);
-    var yAxis = d3.axisLeft()
-      .scale(chart.y)
+
+    var xAxis = d3.axisBottom()
+      .scale(chart.x)
+ //     .orient("bottom")
       .ticks(4);
-//      .orient("bottom");
     key.append("g")
-      .attr("class", "y axis")
-      .attr("transform", "translate(10,15)")
-      .call(yAxis);
+      .attr("class", "x axis")
+      .attr("transform", "translate(0, 20)")
+      .call(xAxis);
 
     d3.select(self.frameElement).style("height", height + "px");
   
