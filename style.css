@@ -1,17 +1,17 @@
 h1, .d3-tip {
         font-family: 'Quicksand', sans-serif;
-        text-align: center;
+        text-align: left;
       }
 
+
       #footer {
-        position: absolute;
-        top: 410px;
-        left:500px;
+      
       }
 
       #legend {
-        position: absolute;
-        margin-left: 20px;
+        
+        margin-left: 350px;
+
       }
 
       .axis path {
@@ -38,7 +38,7 @@ h1, .d3-tip {
 
       p {
         font-family: 'EB Garamond', serif;
-        font-size: 12px;
+        font-size: 18px;
       }
 
       text {

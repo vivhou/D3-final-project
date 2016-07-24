@@ -1,7 +1,13 @@
 //map is forked from https://github.com/githamm/us-state-squares 
 
-var width = 700,
-    height = 400;
+var data = [];
+var options = {
+  categoryRange: 'math_diff'
+};
+
+var margin = { top: 15, right: 15, bottom: 30, left: 45 } ; 
+var width = 625 - margin.right - margin.left;
+    height = 525 - margin.top - margin.bottom;
 
 var colorRamp = ['#e50000', '#ffffb2', '#008000'];
 
@@ -40,16 +46,14 @@ var path = d3.geoPath()
     squaremap = new Choropleth(results[0],results[1]);
     });
 
- var margin = {
-  left: 75,
-  right: 50,
-  top: 50,
-  bottom: 75
-  };
+var chart = new Chart();
 
 
-  var width = 625 - margin.left - margin.right;
-  var height = 625 - margin.top - margin.bottom;
+  d3.select('#categories').on('change', function () {
+    options.categoryRange = d3.event.target.value;
+    chart.update();
+    });
+
 
 function Choropleth(us) {
   var chart = this;
