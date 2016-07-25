@@ -35,9 +35,12 @@ var path = d3.geoPath()
         return "<strong>" + d.properties.abbr + ": </strong><span>" + dataById.get(d.properties.abbr) + "% difference in math proficiency</span>";
       }) */
 
-    var svg = d3.select("body").append("svg")
-      .attr("width", width)
-      .attr("height", height);
+var svg = d3.select("body").append("svg")
+  .attr('width', width + margin.left + margin.right)
+  .attr('height', height + margin.top + margin.bottom);
+
+var mapFeatures = svg.append('g')
+  .attr('class', 'features YlGnBu')
 
  //   svg.call(tip); 
 
@@ -50,12 +53,13 @@ var path = d3.geoPath()
     data = results;
 
     choropleth = new Choropleth(results[0],results[1]);
+    });
 
     d3.select('#categories').on('change', function () {
       currentKey = d3.select(this).property('value');
       choropleth.update();
       });
-    });
+    
 
 
 function Choropleth(us) {
@@ -64,15 +68,10 @@ function Choropleth(us) {
 
 
   chart.svg = d3.select("#chart1")
-    .append('svg')
-    .attr('width', width + margin.left + margin.right)
-    .attr('height', height + margin.top + margin.bottom)
-    .append('g')
-    .attr("class", "mapFeatures")
-    .selectAll("path")
+    mapFeatures.selectAll('path')
     .data(us.features)
-    .enter().append("path")
-    .attr("d", path)
+    .enter().append('path')
+    .attr('d', path)
 /*
     chart.tooltip = d3.tip()
       .attr('class', 'tooltip')
@@ -85,27 +84,29 @@ function Choropleth(us) {
   
 } 
 
-Choropleth.prototype.update = function (us) {
+Choropleth.prototype.update = function () {
+
+ var chart = this;
+
 
  quantize.domain([
     d3.min(data, function(d) { return getValueOfData(d); }),
     d3.max(data, function(d) { return getValueOfData(d); })
   ]);
 
-  var mapFeatures = svg.append('g')
-    .attr('class', 'features YlGnBu');
-   
-  mapFeatures.selectAll('path')
-    .attr("class", function(d) { return quantize(getValueOfData(dataById[d.properties.abbr])); 
-    })
+ mapFeatures.selectAll('path')
+  .attr('class', function(f) { console.log(quantize(getValueOfData(dataById[getIdOfFeature(f)]))); return quantize(getValueOfData(dataById[getIdOfFeature(f)])); 
+    });
 
-console.log(quantize(getValueOfData(dataById[d.properties.abbr])))
+
+
+
    // .style("fill", function(d) { console.log(dataById.get(d.properties.abbr));return color(dataById.get(d.properties.abbr))})
     
      // .on('mouseover', tip.show)
      // .on('mouseout', tip.hide)
-
-  /*  chart.svg = d3.selectAll("g")
+/*
+    chart.svg = d3.selectAll("g")
     .selectAll(".place-label")
     .data(us.features)
     .enter().append("text")
@@ -114,12 +115,15 @@ console.log(quantize(getValueOfData(dataById[d.properties.abbr])))
     .attr("dy", ".5em")
     .attr("dx", "-.7em")
     .text(function(d) { return d.properties.abbr; }); */
-} 
+}
 
 function getValueOfData(d) {
   return +d[currentKey];
 }
 
+function getIdOfFeature(f) {
+  return f.properties.abbr;
+}
 /*
 function updateLegend() {
 
