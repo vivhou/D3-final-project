@@ -53,13 +53,12 @@ var mapFeatures = svg.append('g')
     data = results;
 
     choropleth = new Choropleth(results[0],results[1]);
-    });
 
     d3.select('#categories').on('change', function () {
       currentKey = d3.select(this).property('value');
       choropleth.update();
       });
-    
+    });
 
 
 function Choropleth(us) {
@@ -95,11 +94,10 @@ Choropleth.prototype.update = function () {
   ]);
 
  mapFeatures.selectAll('path')
-  .attr('class', function(f) { console.log(quantize(getValueOfData(dataById[getIdOfFeature(f)]))); return quantize(getValueOfData(dataById[getIdOfFeature(f)])); 
+  .attr('class', function(f) { return quantize(getValueOfData(dataById[getIdOfFeature(f)])); 
     });
 
-
-
+console.log(quantize(getValueOfData(dataById[getIdOfFeature(f)])))
 
    // .style("fill", function(d) { console.log(dataById.get(d.properties.abbr));return color(dataById.get(d.properties.abbr))})
     
@@ -118,11 +116,13 @@ Choropleth.prototype.update = function () {
 }
 
 function getValueOfData(d) {
-  return +d[currentKey];
+  if (d && d[currentKey]) {
+    return +d[currentKey]};
 }
 
 function getIdOfFeature(f) {
-  return f.properties.abbr;
+  if (f && f.properties.abbr) {
+  return f.properties.abbr; };
 }
 /*
 function updateLegend() {
