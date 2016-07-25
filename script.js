@@ -1,17 +1,21 @@
-//map is forked from https://github.com/githamm/us-state-squares 
+//map is forked from a combination of https://github.com/githamm/us-state-squares and https://github.com/lvonlanthen/data-map-d3
 
-var data = [];
-var options = {
-  categoryRange: 'math_diff'
-};
+
+var currentKey = 'math_diff';
 
 var margin = { top: 15, right: 15, bottom: 30, left: 45 } ; 
 var width = 625 - margin.right - margin.left;
     height = 525 - margin.top - margin.bottom;
 
+
+
 var colorRamp = ['#e50000', '#ffffb2', '#008000'];
 
-var rateById = d3.map();
+var dataById = d3.map();
+
+
+var quantize = d3.scaleQuantize()
+  .range(d3.range(9).map(function(i) { return 'q' + i + '-9'; }));
 
 var color = d3.scaleLinear()
   .domain([-3, 2, 13])
@@ -28,52 +32,80 @@ var path = d3.geoPath()
       .attr('class', 'd3-tip')
       .offset([-10, 0])
       .html(function(d) {
-        return "<strong>" + d.properties.abbr + ": </strong><span>" + rateById.get(d.properties.abbr) + "% difference in math proficiency</span>";
-      })
+        return "<strong>" + d.properties.abbr + ": </strong><span>" + dataById.get(d.properties.abbr) + "% difference in math proficiency</span>";
+      }) */
 
     var svg = d3.select("body").append("svg")
       .attr("width", width)
       .attr("height", height);
 
-    svg.call(tip); */
+ //   svg.call(tip); 
 
   queue()
     .defer(d3.json, "../state_squares.geojson")
-    .defer(d3.csv, "/data/map_data.csv", function(d) { rateById.set(d.state, +d.math_diff); })
+    .defer(d3.csv, "/data/map_data.csv", function(d) { dataById.set(d.state, +d.math_diff); })
     .awaitAll(function(error, results) {
       if (error) { throw error; }
+    
+    data = results;
 
-    squaremap = new Choropleth(results[0],results[1]);
-    });
+    choropleth = new Choropleth(results[0],results[1]);
 
-var chart = new Chart();
-
-
-  d3.select('#categories').on('change', function () {
-    options.categoryRange = d3.event.target.value;
-    chart.update();
+    d3.select('#categories').on('change', function () {
+      currentKey = d3.select(this).property('value');
+      choropleth.update();
+      });
     });
 
 
 function Choropleth(us) {
   var chart = this;
 
+
+
   chart.svg = d3.select("#chart1")
     .append('svg')
     .attr('width', width + margin.left + margin.right)
     .attr('height', height + margin.top + margin.bottom)
     .append('g')
-    .attr("class", "states")
+    .attr("class", "mapFeatures")
     .selectAll("path")
     .data(us.features)
     .enter().append("path")
-    .attr("class", function(d) { return d.properties.abbr; })
-    .style("fill", function(d) { console.log(rateById.get(d.properties.abbr));return color(rateById.get(d.properties.abbr))})
     .attr("d", path)
-   // .on('mouseover', tip.show)
-   // .on('mouseout', tip.hide)
+/*
+    chart.tooltip = d3.tip()
+      .attr('class', 'tooltip')
+      .offset([-6, 0])
+      .html(function(d) { return dataById.get(d.properties.abbr) });
+    chart.tooltip(chart.svg);
+    chart.update(); */
 
-    chart.svg = d3.selectAll("g")
+    chart.update();
+  
+} 
+
+Choropleth.prototype.update = function (us) {
+
+ quantize.domain([
+    d3.min(data, function(d) { return getValueOfData(d); }),
+    d3.max(data, function(d) { return getValueOfData(d); })
+  ]);
+
+  var mapFeatures = svg.append('g')
+    .attr('class', 'features YlGnBu');
+   
+  mapFeatures.selectAll('path')
+    .attr("class", function(d) { return quantize(getValueOfData(dataById[d.properties.abbr])); 
+    })
+
+console.log(quantize(getValueOfData(dataById[d.properties.abbr])))
+   // .style("fill", function(d) { console.log(dataById.get(d.properties.abbr));return color(dataById.get(d.properties.abbr))})
+    
+     // .on('mouseover', tip.show)
+     // .on('mouseout', tip.hide)
+
+  /*  chart.svg = d3.selectAll("g")
     .selectAll(".place-label")
     .data(us.features)
     .enter().append("text")
@@ -81,11 +113,26 @@ function Choropleth(us) {
     .attr("transform", function(d) { return "translate(" + path.centroid(d) + ")"; }) 
     .attr("dy", ".5em")
     .attr("dx", "-.7em")
-    .text(function(d) { return d.properties.abbr; });
+    .text(function(d) { return d.properties.abbr; }); */
+} 
 
-    // Legend
+function getValueOfData(d) {
+  return +d[currentKey];
+}
+
+/*
+function updateLegend() {
+
+// Legend
     var w = 210,
         h = 40;
+    var legendDomain = quantize.range().map(function(d) {
+      var r = quantize.invertExtent(d);
+      return r[1];
+    });
+
+    legendDomain.unshift(quantize.domain()[0]);
+
     var key = d3.select("#legend")
       .append("svg")
       .attr("width", w)
@@ -129,8 +176,5 @@ function Choropleth(us) {
       .attr("transform", "translate(0, 20)")
       .call(xAxis);
 
-    d3.select(self.frameElement).style("height", height + "px");
-  
-} 
-
- 
+  //  d3.select(self.frameElement).style("height", height + "px");
+ } */
