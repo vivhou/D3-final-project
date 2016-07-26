@@ -39,48 +39,55 @@ var svg = d3.select("body").append("svg")
   .attr('width', width + margin.left + margin.right)
   .attr('height', height + margin.top + margin.bottom);
 
-var mapFeatures = svg.append('g')
-  .attr('class', 'features YlGnBu')
-
  //   svg.call(tip); 
 
   queue()
     .defer(d3.json, "../state_squares.geojson")
-    .defer(d3.csv, "/data/map_data.csv", function(d) { dataById.set(d.state, +d.math_diff); })
+    .defer(d3.csv, "/data/map_data.csv")
     .awaitAll(function(error, results) {
       if (error) { throw error; }
     
-    data = results;
-
     choropleth = new Choropleth(results[0],results[1]);
+    choropleth.update();
+
 
     d3.select('#categories').on('change', function () {
       currentKey = d3.select(this).property('value');
-      choropleth.update();
+      choropleth.update(results[0],results[1]);
       });
     });
 
 
-function Choropleth(us) {
+function Choropleth(states, data) {
   var chart = this;
 
+  chart.mapFeatures = svg.append('g')
+  .attr('class', 'features YlGnBu')
 
+    for (var i = 0; i < data.length; i++) {
+      var state = data[i].state;
+      var math_diff = data[i].math_diff;
+      var read_diff = data[i].read_diff;
+      var pp_diff = data[i].pp_diff;
 
-  chart.svg = d3.select("#chart1")
-    mapFeatures.selectAll('path')
-    .data(us.features)
+      for (var j = 0; j < states.features.length; j++) {
+
+        if (state == states.features[j].properties.abbr) {
+          states.features[j].properties.math_diff = math_diff;
+          states.features[j].properties.read_diff = read_diff;
+          states.features[j].properties.pp_diff = pp_diff;
+          break;
+        }
+      }
+    }
+
+    chart.svg = d3.select("#chart1")
+    chart.mapFeatures.selectAll('path')
+    .data(states.features)
     .enter().append('path')
     .attr('d', path)
-/*
-    chart.tooltip = d3.tip()
-      .attr('class', 'tooltip')
-      .offset([-6, 0])
-      .html(function(d) { return dataById.get(d.properties.abbr) });
-    chart.tooltip(chart.svg);
-    chart.update(); */
 
-    chart.update();
-  
+  chart.states = states;
 } 
 
 Choropleth.prototype.update = function () {
@@ -89,15 +96,17 @@ Choropleth.prototype.update = function () {
 
 
  quantize.domain([
-    d3.min(data, function(d) { return getValueOfData(d); }),
-    d3.max(data, function(d) { return getValueOfData(d); })
+    d3.min(chart.states.features, function(d) { return getValueOfData(d); }),
+    d3.max(chart.states.features, function(d) { return getValueOfData(d); })
   ]);
 
- mapFeatures.selectAll('path')
-  .attr('class', function(f) { return quantize(getValueOfData(dataById[getIdOfFeature(f)])); 
+ chart.mapFeatures.selectAll('path')
+  .attr('class', function(d) { 
+    return quantize(getValueOfData(d)); 
     });
 
-console.log(quantize(getValueOfData(dataById[getIdOfFeature(f)])))
+//console.log(quantize(getValueOfData(dataById[getIdOfFeature(f)])))
+
 
    // .style("fill", function(d) { console.log(dataById.get(d.properties.abbr));return color(dataById.get(d.properties.abbr))})
     
@@ -116,14 +125,16 @@ console.log(quantize(getValueOfData(dataById[getIdOfFeature(f)])))
 }
 
 function getValueOfData(d) {
-  if (d && d[currentKey]) {
-    return +d[currentKey]};
+  return +d.properties[currentKey]
 }
 
+/*
 function getIdOfFeature(f) {
-  if (f && f.properties.abbr) {
-  return f.properties.abbr; };
+  return f.properties.abbr;
+  console.log('1')
+
 }
+*/
 /*
 function updateLegend() {
 
