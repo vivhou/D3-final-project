@@ -3,23 +3,12 @@
 
 var currentKey = 'math_diff';
 
-var margin = { top: 15, right: 15, bottom: 30, left: 45 } ; 
-var width = 625 - margin.right - margin.left;
+var margin = { top: 15, right: 5, bottom: 30, left: 5 } ; 
+var width = 750 - margin.right - margin.left;
     height = 525 - margin.top - margin.bottom;
-
-
-
-var colorRamp = ['#e50000', '#ffffb2', '#008000'];
-
-var dataById = d3.map();
-
 
 var quantize = d3.scaleQuantize()
   .range(d3.range(9).map(function(i) { return 'q' + i + '-9'; }));
-
-var color = d3.scaleLinear()
-  .domain([-3, 2, 13])
-  .range(colorRamp);
 
 var projection = d3.geoEquirectangular()
   .scale(2000)
@@ -35,9 +24,11 @@ var path = d3.geoPath()
         return "<strong>" + d.properties.abbr + ": </strong><span>" + dataById.get(d.properties.abbr) + "% difference in math proficiency</span>";
       }) */
 
-var svg = d3.select("body").append("svg")
+var svg = d3.select("#chart1").append("svg")
   .attr('width', width + margin.left + margin.right)
   .attr('height', height + margin.top + margin.bottom);
+
+
 
  //   svg.call(tip); 
 
@@ -81,11 +72,31 @@ function Choropleth(states, data) {
       }
     }
 
-    chart.svg = d3.select("#chart1")
-    chart.mapFeatures.selectAll('path')
+  chart.svg = d3.select("#chart1")
+  chart.mapFeatures.selectAll('path')
     .data(states.features)
     .enter().append('path')
     .attr('d', path)
+
+
+  chart.legendSvg = d3.select('#legend').append('svg')
+    .attr('width', '40%')
+    .attr('height', '30');
+
+  chart.g = chart.legendSvg.append('g')
+    .attr("class", "legend-key YlGnBu")
+    .attr("transform", "translate(" + 20 + "," + 20 + ")");
+
+  chart.legendX = d3.scaleLinear();
+
+
+
+ /* g.selectAll("rect")
+    .data(quantize.range().map(function(d) {
+      return quantize.invertExtent(d);
+    }))
+
+  .enter().append("rect"); */
 
   chart.states = states;
 } 
@@ -104,6 +115,11 @@ Choropleth.prototype.update = function () {
   .attr('class', function(d) { 
     return quantize(getValueOfData(d)); 
     });
+
+chart.legendX
+    .domain(quantize.domain())
+    .range([0, 100]);
+
 
 //console.log(quantize(getValueOfData(dataById[getIdOfFeature(f)])))
 
@@ -128,16 +144,9 @@ function getValueOfData(d) {
   return +d.properties[currentKey]
 }
 
-/*
-function getIdOfFeature(f) {
-  return f.properties.abbr;
-  console.log('1')
 
-}
-*/
-/*
-function updateLegend() {
 
+/*
 // Legend
     var w = 210,
         h = 40;
@@ -148,35 +157,6 @@ function updateLegend() {
 
     legendDomain.unshift(quantize.domain()[0]);
 
-    var key = d3.select("#legend")
-      .append("svg")
-      .attr("width", w)
-      .attr("height", h);
-    var legend = key.append("defs")
-      .append("svg:linearGradient")
-      .attr("id", "gradient")
-      .attr("y1", "100%")
-      .attr("x1", "0%")
-      .attr("y2", "100%")
-      .attr("x2", "100%")
-      .attr("spreadMethod", "pad");
-    legend.append("stop")
-      .attr("offset", "0%")
-      .attr("stop-color", colorRamp[0])
-      .attr("stop-opacity", 1);
-    legend.append("stop")
-      .attr("offset", "30%")
-      .attr("stop-color", colorRamp[1])
-      .attr("stop-opacity", 1);
-    legend.append("stop")
-      .attr("offset", "100%")
-      .attr("stop-color", colorRamp[2])
-      .attr("stop-opacity", 1);
-    key.append("rect")
-      .attr("width", w - 10)
-      .attr("height", h - 20)
-      .style("fill", "url(#gradient)")
-      .attr("transform", "translate(0,0)");
 
     chart.x = d3.scaleLinear()
       .range([0, 200])
@@ -191,5 +171,5 @@ function updateLegend() {
       .attr("transform", "translate(0, 20)")
       .call(xAxis);
 
-  //  d3.select(self.frameElement).style("height", height + "px");
- } */
+  //  d3.select(self.frameElement).style("height", height + "px"); */
+ 
