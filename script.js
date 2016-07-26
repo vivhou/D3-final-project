@@ -3,7 +3,7 @@
 
 var currentKey = 'math_diff';
 
-var margin = { top: 15, right: 5, bottom: 30, left: 5 } ; 
+var margin = { top: 15, right: 15, bottom: 30, left: 15 } ; 
 var width = 750 - margin.right - margin.left;
     height = 525 - margin.top - margin.bottom;
 
@@ -80,16 +80,25 @@ function Choropleth(states, data) {
 
 
   chart.legendSvg = d3.select('#legend').append('svg')
-    .attr('width', '40%')
-    .attr('height', '30');
+    .attr('width', '100%')
+    .attr('height', '50');
 
   chart.g = chart.legendSvg.append('g')
     .attr("class", "legend-key YlGnBu")
     .attr("transform", "translate(" + 20 + "," + 20 + ")");
 
+  chart.g.selectAll("rect")
+    .data(quantize.range().map(function(d) {
+      return quantize.invertExtent(d);
+    }))
+  .enter().append("rect");
+
   chart.legendX = d3.scaleLinear();
 
-
+  chart.legendXAxis = d3.axisBottom()
+  .scale(chart.legendX)
+ // .orient("bottom")
+  .tickSize(13);
 
  /* g.selectAll("rect")
     .data(quantize.range().map(function(d) {
@@ -105,7 +114,6 @@ Choropleth.prototype.update = function () {
 
  var chart = this;
 
-
  quantize.domain([
     d3.min(chart.states.features, function(d) { return getValueOfData(d); }),
     d3.max(chart.states.features, function(d) { return getValueOfData(d); })
@@ -116,28 +124,45 @@ Choropleth.prototype.update = function () {
     return quantize(getValueOfData(d)); 
     });
 
+chart.legendWidth = d3.select('#chart1').node().getBoundingClientRect().width - margin.right - margin.left;
+
+chart.legendDomain = quantize.range().map(function(d) {
+    var r = quantize.invertExtent(d);
+    return r[1];
+});
+
+chart.legendDomain.unshift(quantize.domain()[0]);
+
 chart.legendX
     .domain(quantize.domain())
-    .range([0, 100]);
+    .range([0, chart.legendWidth]);
+
+if (chart.legendWidth < 400) {
+    chart.legendDomain = chart.legendDomain.filter(function(d, i) {
+      return i % 3 == 0;
+    });
+  }    
+
+chart.g.selectAll("rect")
+    .data(quantize.range().map(function(d) {
+      return quantize.invertExtent(d);
+    }))
+    .attr("height", 8)
+    .attr("x", function(d) { return chart.legendX(d[0]); })
+    .attr("width", function(d) { return chart.legendX(d[1]) - chart.legendX(d[0]); })
+    .attr('class', function(d, i) {
+      return quantize.range()[i];
+    });
+
+chart.legendXAxis
+    .tickValues(chart.legendDomain)
+
+  chart.g.call(chart.legendXAxis);
 
 
-//console.log(quantize(getValueOfData(dataById[getIdOfFeature(f)])))
-
-
-   // .style("fill", function(d) { console.log(dataById.get(d.properties.abbr));return color(dataById.get(d.properties.abbr))})
-    
      // .on('mouseover', tip.show)
      // .on('mouseout', tip.hide)
-/*
-    chart.svg = d3.selectAll("g")
-    .selectAll(".place-label")
-    .data(us.features)
-    .enter().append("text")
-    .attr("class", "place-label")
-    .attr("transform", function(d) { return "translate(" + path.centroid(d) + ")"; }) 
-    .attr("dy", ".5em")
-    .attr("dx", "-.7em")
-    .text(function(d) { return d.properties.abbr; }); */
+
 }
 
 function getValueOfData(d) {

@@ -10,7 +10,7 @@ h1, .d3-tip {
 
       #legend {
         
-        margin-left: 350px;
+        margin-left: 50px;
 
       }
 
@@ -37,8 +37,10 @@ h1, .d3-tip {
       }
 
       p {
-        font-family: 'EB Garamond', serif;
-        font-size: 18px;
+        font-family: 'Lato', serif;
+        font-size: 14px;
+        margin-top: 20px;
+        margin-bottom: 20px;
       }
 
       text {
@@ -64,8 +66,8 @@ h1, .d3-tip {
      }
 
     #legend {
-      border: 1px solid silver;
-      border-top: 0;
+      border: none;
+
     }
 
     .legend-key path {
