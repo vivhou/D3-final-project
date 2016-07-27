@@ -17,12 +17,8 @@ var projection = d3.geoEquirectangular()
 
 var path = d3.geoPath()
   .projection(projection);
-/*    var tip = d3.tip()
-      .attr('class', 'd3-tip')
-      .offset([-10, 0])
-      .html(function(d) {
-        return "<strong>" + d.properties.abbr + ": </strong><span>" + dataById.get(d.properties.abbr) + "% difference in math proficiency</span>";
-      }) */
+
+
 
 var svg = d3.select("#chart1").append("svg")
   .attr('width', width + margin.left + margin.right)
@@ -30,7 +26,7 @@ var svg = d3.select("#chart1").append("svg")
 
 
 
- //   svg.call(tip); 
+   
 
   queue()
     .defer(d3.json, "../state_squares.geojson")
@@ -60,6 +56,7 @@ function Choropleth(states, data) {
       var math_diff = data[i].math_diff;
       var read_diff = data[i].read_diff;
       var pp_diff = data[i].pp_diff;
+      var poverty = data[i].poverty;
 
       for (var j = 0; j < states.features.length; j++) {
 
@@ -67,6 +64,7 @@ function Choropleth(states, data) {
           states.features[j].properties.math_diff = math_diff;
           states.features[j].properties.read_diff = read_diff;
           states.features[j].properties.pp_diff = pp_diff;
+          states.features[j].properties.poverty = poverty;
           break;
         }
       }
@@ -78,7 +76,7 @@ function Choropleth(states, data) {
     .enter().append('path')
     .attr('d', path)
 
-
+//LEGEND
   chart.legendSvg = d3.select('#legend').append('svg')
     .attr('width', '100%')
     .attr('height', '50');
@@ -100,12 +98,15 @@ function Choropleth(states, data) {
  // .orient("bottom")
   .tickSize(13);
 
- /* g.selectAll("rect")
-    .data(quantize.range().map(function(d) {
-      return quantize.invertExtent(d);
-    }))
+//TOOLTIP
 
-  .enter().append("rect"); */
+/*chart.tooltip = d3.tip()
+        .attr('class', 'tooltip')
+        .offset([-6, 0])
+        .html(function(d) { 
+          return '' });
+*/
+//chart.tooltip(chart.svg);
 
   chart.states = states;
 } 
@@ -120,11 +121,21 @@ Choropleth.prototype.update = function () {
   ]);
 
  chart.mapFeatures.selectAll('path')
+  .transition()
+ // .duration(1250)
   .attr('class', function(d) { 
-    return quantize(getValueOfData(d)); 
-    });
+    return quantize(getValueOfData(d));
+    })
+  .style('stroke', function(d) {
+    if (d.properties['poverty'] >= 15.6) {
+      return "#0000b2"}
+  ;})
+  .style('stroke-width', function(d) {
+  if (d.properties['poverty'] >= 15.6) {return "3px"}
+  ;})
+  .delay(function(d, i) { return i*10;});
 
-chart.legendWidth = d3.select('#chart1').node().getBoundingClientRect().width - margin.right - margin.left;
+chart.legendWidth = d3.select('#chart1').node().getBoundingClientRect().width*.7 - margin.right - margin.left;
 
 chart.legendDomain = quantize.range().map(function(d) {
     var r = quantize.invertExtent(d);

@@ -10,12 +10,19 @@ h1, .d3-tip {
 
       #legend {
         
-        margin-left: 50px;
+        margin-left: 90px;
 
       }
 
+  
+
       .axis path {
-        fill: none;
+        fill: "none";
+        stroke: #fff;
+      }
+
+      path {
+        fill: #fff;
         stroke: #fff;
       }
 
@@ -57,13 +64,21 @@ h1, .d3-tip {
       }
 
     .tooltip {
-       padding: .5em 1em;
-       background: rgba(0,0,0,.75);
-       color: white;
-       font-size: 13px;
-       font-weight: 700;
-       line-height: 1;
-     }
+      font-weight: bold;
+      padding: 0.5rem;
+      border: 1px solid silver;
+      color: #222;
+      background: #fff;
+      border-radius: 5px;
+      box-shadow: 0px 0px 5px 0px #a6a6a6;
+      opacity: 0.9;
+      position: absolute;
+      font-size: 1.5rem;
+    }
+
+    .hidden {
+      display: none;
+    }
 
     #legend {
       border: none;
