@@ -7,6 +7,11 @@ var margin = { top: 15, right: 15, bottom: 30, left: 15 } ;
 var width = 750 - margin.right - margin.left;
     height = 525 - margin.top - margin.bottom;
 
+// We prepare a quantize scale to categorize the values in 9 groups.
+// The scale returns text values which can be used for the color CSS
+// classes (q0-9, q1-9 ... q8-9). The domain will be defined once the
+// values are known.
+
 var quantize = d3.scaleQuantize()
   .range(d3.range(9).map(function(i) { return 'q' + i + '-9'; }));
 
@@ -91,13 +96,23 @@ function Choropleth(states, data) {
     }))
   .enter().append("rect");
 
+// For the legend, we prepare a very simple linear scale. Domain and
+// range will be set later as they depend on the data currently shown.
+
   chart.legendX = d3.scaleLinear();
 
+// We use the scale to define an axis. The tickvalues will be set later
+// as they also depend on the data.
   chart.legendXAxis = d3.axisBottom()
   .scale(chart.legendX)
  // .orient("bottom")
   .tickSize(13);
 
+
+chart.g.append("text")
+    .attr("class", "caption")
+    .attr("y", -6)
+    .attr("x", 25)
 //TOOLTIP
 
 /*chart.tooltip = d3.tip()
@@ -135,25 +150,46 @@ Choropleth.prototype.update = function () {
   ;})
   .delay(function(d, i) { return i*10;});
 
+//UPDATING LEGEND
+
 chart.legendWidth = d3.select('#chart1').node().getBoundingClientRect().width*.7 - margin.right - margin.left;
+
+// We determine the domain of the quantize scale which will be used as
+  // tick values. We cannot directly use the scale via quantize.scale()
+  // as this returns only the minimum and maximum values but we need all
+  // the steps of the scale. The range() function returns all categories
+  // and we need to map the category values (q0-9, ..., q8-9) to the
+  // number values. To do this, we can use invertExtent().
 
 chart.legendDomain = quantize.range().map(function(d) {
     var r = quantize.invertExtent(d);
     return r[1];
 });
 
+  // Since we always only took the upper limit of the category, we also
+  // need to add the lower limit of the very first category to the top
+  // of the domain.
+
 chart.legendDomain.unshift(quantize.domain()[0]);
 
+  // We set the domain and range for the x scale of the legend. The
+  // domain is the same as for the quantize scale and the range takes up
+  // all the space available to draw the legend.
 chart.legendX
     .domain(quantize.domain())
     .range([0, chart.legendWidth]);
 
+  // On smaller screens, there is not enough room to show all 10
+  // category values. In this case, we add a filter leaving only every
+  // third value of the domain.
 if (chart.legendWidth < 400) {
     chart.legendDomain = chart.legendDomain.filter(function(d, i) {
       return i % 3 == 0;
     });
   }    
 
+  // We update the rectangles by (re)defining their position and width
+  // (both based on the legend scale) and setting the correct class.
 chart.g.selectAll("rect")
     .data(quantize.range().map(function(d) {
       return quantize.invertExtent(d);
@@ -165,6 +201,12 @@ chart.g.selectAll("rect")
       return quantize.range()[i];
     });
 
+var keyDropdown = d3.select('#categories').node();
+var selectedOption = keyDropdown.options[keyDropdown.selectedIndex];
+chart.g.selectAll('text.caption')
+  .text(selectedOption.text);
+
+  // We set the calculated domain as tickValues for the legend axis.
 chart.legendXAxis
     .tickValues(chart.legendDomain)
 

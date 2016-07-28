@@ -99,18 +99,25 @@ h1, .d3-tip {
     }
 
     /* Thanks to http://colorbrewer2.org/ */
-    .YlGnBu .q0-9{fill:#a50026}
-    .YlGnBu .q1-9{fill:#c12b23}
-    .YlGnBu .q2-9{fill:#d73027}
-    .YlGnBu .q3-9{fill:#f46d43}
-    .YlGnBu .q4-9{fill:#fdae61}
-    .YlGnBu .q5-9{fill:#fee08b}
-    .YlGnBu .q6-9{fill:#ffffbf}
-    .YlGnBu .q7-9{fill:#d9ef8b}
-    .YlGnBu .q8-9{fill:#a6d96a}
+    .YlGnBu .q0-9{fill:#990000}
+    .YlGnBu .q1-9{fill:#cc0000}
+    .YlGnBu .q2-9{fill:#e63e00}
+    .YlGnBu .q3-9{fill:#ff7000}
+    .YlGnBu .q4-9{fill:#FFD700}
+    .YlGnBu .q5-9{fill:#ffe766}
+    .YlGnBu .q6-9{fill:#dbf875}
+    .YlGnBu .q7-9{fill:#cbec57}
+    .YlGnBu .q8-9{fill:#b2dd19}
 
 
     g.features {
       stroke: #d8d8d8;
       stroke-width: 0.5;
+    }
+
+    .caption {
+      fill: #000;
+      size: 200%;
+
+
     }
