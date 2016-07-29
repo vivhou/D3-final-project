@@ -15,35 +15,67 @@
 </head>
 <body>
 <div class="container">
-  <div class="header section">
-      <h1>The Education Landscape: 2005 vs. 2011</h1>
-      <p> The graph below shows how fourth grade national proficiency levels and per-pupil expenses changed in 2011 compared to 2005.</p>
-      <p><em>*The top ten states with the highest average poverty rate (2005-2011) are bordered in blue</em></p>
-      <div class="controls section">
-      <div class= "col-sm-9">
-        <div class="btn-toolbar">
-          <label for="categories" class="category-label">Categories: </label>
-          <select id="categories">
-            <option value="math_diff">Math proficiency %</option>
-            <option value="read_diff">Reading proficiency %</option>
-            <option value="pp_diff">Per Pupil Expense ($)</option>
-          </select>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="header section">
+        <h1>The Education Landscape: 2005 vs. 2011</h1>
+        <p> The graph below shows how fourth grade national proficiency levels and per-pupil expenses changed in 2011 compared to 2005.</p>
+        <div class="row">
+          <div class="col-md-2">
+          </div>
+          <div class="col-md-4">   
+            <div class="source">Source: <a href="http://febp.newamerica.net/k12" target="_blank">New American Foundation</a>
+            </div>
+          </div> 
         </div>
-      </div>   
-  </div>
-</div>
-</div>
-<div class="main section">
-  <div class="container">
-    <div class="col-sm-8">
-      <div id="chart1"></div>
-      <div id="legend"></div>
-      <div id="footer">
-      <p>Source: <a href="http://febp.newamerica.net/k12" target="_blank">New American Foundation</a></p>
+        <div class="row">
+          <div class="col-md-4">
+              <div class="controls section">
+                <div class="btn-toolbar">
+                  <label for="categories" class="category-label">Categories: </label>
+                  <select id="categories">
+                    <option value="math_diff">Math proficiency %</option>
+                    <option value="read_diff">Reading proficiency %</option>
+                    <option value="pp_diff">Per Pupil Expense ($)</option>
+                  </select>
+                </div>
+              </div>
+          </div>
+        </div> 
       </div>
     </div>
   </div>
+  <div class="row">
+    <div class="main section">
+      <div class="col-md-6">
+        <div id="chart1">
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div id="chart2">
+        </div>
+      </div>
+    </div>
+  </div> 
+  <div class="row">
+    <div class="col-md-3">   
+    </div>
+    <div class="col-md-3">
+       <div class="note">*The top ten states with the highest average poverty rate (2005-2011) are bordered in purple</div>        
+    </div>
+    <div class="col-md-6">
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-4">
+      <div id="legend">
+      </div>
+    </div>
+  </div>  
 </div>
+   
+
+
 
 <script type="text/javascript" src="http://d3js.org/d3.v4.min.js"></script>
 <script src="http://d3js.org/queue.v1.min.js"></script>

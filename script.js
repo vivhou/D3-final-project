@@ -3,9 +3,9 @@
 
 var currentKey = 'math_diff';
 
-var margin = { top: 15, right: 15, bottom: 30, left: 15 } ; 
-var width = 750 - margin.right - margin.left;
-    height = 525 - margin.top - margin.bottom;
+var margin = { top: 5, right: 15, bottom: 20, left: 15 } ; 
+var width = 600 - margin.right - margin.left;
+    height = 480 - margin.top - margin.bottom;
 
 // We prepare a quantize scale to categorize the values in 9 groups.
 // The scale returns text values which can be used for the color CSS
@@ -143,7 +143,7 @@ Choropleth.prototype.update = function () {
     })
   .style('stroke', function(d) {
     if (d.properties['poverty'] >= 15.6) {
-      return "#0000b2"}
+      return "#697fd7"}
   ;})
   .style('stroke-width', function(d) {
   if (d.properties['poverty'] >= 15.6) {return "3px"}
@@ -152,7 +152,7 @@ Choropleth.prototype.update = function () {
 
 //UPDATING LEGEND
 
-chart.legendWidth = d3.select('#chart1').node().getBoundingClientRect().width*.7 - margin.right - margin.left;
+chart.legendWidth = d3.select('#chart1').node().getBoundingClientRect().width/2 - margin.right - margin.left;
 
 // We determine the domain of the quantize scale which will be used as
   // tick values. We cannot directly use the scale via quantize.scale()
