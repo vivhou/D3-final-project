@@ -1,5 +1,6 @@
 //map is forked from a combination of https://github.com/githamm/us-state-squares and https://github.com/lvonlanthen/data-map-d3
 
+var data = [];
 
 var currentKey = 'math_diff';
 
@@ -24,13 +25,6 @@ var path = d3.geoPath()
   .projection(projection);
 
 
-
-var svg = d3.select("#chart1").append("svg")
-  .attr('width', width + margin.left + margin.right)
-  .attr('height', height + margin.top + margin.bottom);
-
-
-
    
 
   queue()
@@ -38,14 +32,19 @@ var svg = d3.select("#chart1").append("svg")
     .defer(d3.csv, "/data/map_data.csv")
     .awaitAll(function(error, results) {
       if (error) { throw error; }
+
     
     choropleth = new Choropleth(results[0],results[1]);
     choropleth.update();
+
+    scatterplot = new Scatterplot(results[1]);
+    scatterplot.update();
 
 
     d3.select('#categories').on('change', function () {
       currentKey = d3.select(this).property('value');
       choropleth.update(results[0],results[1]);
+      scatterplot.update(results[1]);
       });
     });
 
@@ -53,7 +52,13 @@ var svg = d3.select("#chart1").append("svg")
 function Choropleth(states, data) {
   var chart = this;
 
-  chart.mapFeatures = svg.append('g')
+
+  chart.svg = d3.select("#chart1").append("svg")
+    .attr('width', width + margin.left + margin.right)
+    .attr('height', height + margin.top + margin.bottom);
+
+
+  chart.mapFeatures = chart.svg.append('g')
   .attr('class', 'features YlGnBu')
 
     for (var i = 0; i < data.length; i++) {
@@ -123,6 +128,105 @@ function Choropleth(states, data) {
 
   chart.states = states;
 } 
+
+  function Scatterplot(data) {
+    var chart = this;
+
+    chart.data = data
+
+    chart.svg = d3.select("#chart2").append("svg")
+      .attr('width', width + margin.left + margin.right)
+      .attr('height', height + margin.top + margin.bottom)
+      .append('g')
+      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+ 
+    // SCALES
+
+    chart.x = d3.scaleLinear()
+      .domain([0, d3.max(chart.data, function (d) { return d.poverty/100; })]) 
+      .range([0, width])
+      .nice();
+
+    var y0 = Math.max(-d3.min(chart.data, function (d) {
+      return d.math_diff;
+    }), d3.max(chart.data, function(d) { 
+      return d.math_diff;
+    }));
+
+    chart.y = d3.scaleLinear()
+     // .domain(d3.extent(data, function (d) { return d.Math_proficient/100; })) 
+      .domain([-y0, y0])
+      .range([height, 0])
+      .nice();
+
+    // AXES
+
+    var formatPercentage = d3.format(".1%");
+    var formatPercentage_x = function(d) { if (d > 0) {
+      return formatPercentage(d); }
+    };
+
+    var formatPoints = d3.format("");
+
+    var xAxis = d3.axisBottom()
+        .scale(chart.x)
+        .ticks(10)
+        //.orient("top")
+        .tickSize(-height) 
+        .tickFormat(formatPercentage_x);
+
+
+
+
+    var yAxis = d3.axisLeft()
+        .scale(chart.y)
+      //  .ticks(16)
+  //      .orient("left")
+     //   .outerTickSize(0)
+        .tickSize(-width, 0, 0) 
+        .tickFormat(formatPoints);
+
+   var gx = chart.svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + (height) + ")")
+        .call(xAxis) 
+ //   gx.selectAll("g").filter(function(d) { return d;}) //need to use filter since true values do not return 0
+ //       .classed("minor", true);
+   //   .attr("transform")
+    gx.selectAll("text")
+       .attr("transform", "translate(0," + (height* -.5) + ")")
+    gx.append("text")
+        .attr("text-anchor", "middle")
+        .attr("transform", "translate(" + (width /2) + " ," + (margin.bottom) + ")")
+        .style("text-anchor", "middle")
+        .text("Poverty");
+
+
+
+    var gy= chart.svg.append("g")
+        .attr("class", "y axis")
+     //   .attr("transform", "translate(" + ",0)")
+        .call(yAxis)
+ //   gy.selectAll("g").filter(function(d) { return d;})
+ //       .classed("minor", true);
+    gy.selectAll("text") 
+       .attr("x", -1)
+       .attr("dy", 0);
+    gy.append("text")
+       .attr("transform", "rotate(-90)")
+       .attr("y", -42)
+       .attr("x", margin.top - (height/2))
+       .attr("dy", ".71em")
+       .style("text-anchor", "middle")
+       .text("Math proficiency");
+
+
+//    chart.update();
+   
+  }
+
+
 
 Choropleth.prototype.update = function () {
 
@@ -232,14 +336,13 @@ Choropleth.prototype.update = function () {
             .attr("class", "tooltip_text")
             .html("State" + ": <b>" + d.properties.abbr + "</b><br /> <u>" + selectedOption.text + "</u>:<b> " + 
               format(d.properties[currentKey]) + "</b>")
-    })        
+      })        
       .on("mouseout", function(d) {       
           chart.tooltip.html("")
               .transition()        
               .duration(500)      
               .style("opacity", 0)
       });
-
 
 }
 
@@ -248,31 +351,9 @@ function getValueOfData(d) {
 }
 
 
+Scatterplot.prototype.update = function() {
 
-/*
-// Legend
-    var w = 210,
-        h = 40;
-    var legendDomain = quantize.range().map(function(d) {
-      var r = quantize.invertExtent(d);
-      return r[1];
-    });
-
-    legendDomain.unshift(quantize.domain()[0]);
+}
 
 
-    chart.x = d3.scaleLinear()
-      .range([0, 200])
-      .domain([-3, 13]);
 
-    var xAxis = d3.axisBottom()
-      .scale(chart.x)
- //     .orient("bottom")
-      .ticks(4);
-    key.append("g")
-      .attr("class", "x axis")
-      .attr("transform", "translate(0, 20)")
-      .call(xAxis);
-
-  //  d3.select(self.frameElement).style("height", height + "px"); */
- 
