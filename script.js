@@ -1,6 +1,5 @@
 //map is forked from a combination of https://github.com/githamm/us-state-squares and https://github.com/lvonlanthen/data-map-d3
 
-var data = [];
 
 var currentKey = 'math_diff';
 
@@ -30,6 +29,7 @@ var path = d3.geoPath()
   queue()
     .defer(d3.json, "../state_squares.geojson")
     .defer(d3.csv, "/data/map_data.csv")
+    .defer(d3.csv, "/data/score_differences.csv")
     .awaitAll(function(error, results) {
       if (error) { throw error; }
 
@@ -67,6 +67,14 @@ function Choropleth(states, data) {
       var read_diff = data[i].read_diff;
       var pp_diff = data[i].pp_diff;
       var poverty = data[i].poverty;
+      var m_diff_white = data[i].m_diff_white;
+      var m_diff_black = data[i].m_diff_black;
+      var m_diff_his = data[i].m_diff_his;
+      var r_diff_white = data[i].r_diff_white;
+      var r_diff_black = data[i].r_diff_black;
+      var r_diff_his = data[i].r_diff_his;
+
+
 
       for (var j = 0; j < states.features.length; j++) {
 
@@ -75,6 +83,13 @@ function Choropleth(states, data) {
           states.features[j].properties.read_diff = read_diff;
           states.features[j].properties.pp_diff = pp_diff;
           states.features[j].properties.poverty = poverty;
+          states.features[j].properties.m_diff_white = m_diff_white;
+          states.features[j].properties.m_diff_black = m_diff_black;
+          states.features[j].properties.m_diff_his = m_diff_his;
+          states.features[j].properties.r_diff_white = r_diff_white;
+          states.features[j].properties.r_diff_black = r_diff_black;
+          states.features[j].properties.r_diff_his = r_diff_his;
+
           break;
         }
       }
@@ -144,14 +159,14 @@ function Choropleth(states, data) {
     // SCALES
 
     chart.x = d3.scaleLinear()
-      .domain([0, d3.max(chart.data, function (d) { return d.poverty/100; })]) 
+      .domain([0, d3.max(chart.data, function (d) { return d.poverty; })]) 
       .range([0, width])
       .nice();
 
     var y0 = Math.max(-d3.min(chart.data, function (d) {
-      return d.math_diff;
+      return Math.max(d.m_diff_white, d.m_diff_his,d.m_diff_black);
     }), d3.max(chart.data, function(d) { 
-      return d.math_diff;
+      return Math.max(d.m_diff_white, d.m_diff_his,d.m_diff_black);
     }));
 
     chart.y = d3.scaleLinear()
@@ -169,7 +184,7 @@ function Choropleth(states, data) {
 
     var formatPoints = d3.format("");
 
-    var xAxis = d3.axisBottom()
+    chart.xAxis = d3.axisBottom()
         .scale(chart.x)
         .ticks(10)
         //.orient("top")
@@ -179,47 +194,13 @@ function Choropleth(states, data) {
 
 
 
-    var yAxis = d3.axisLeft()
+    chart.yAxis = d3.axisLeft()
         .scale(chart.y)
       //  .ticks(16)
   //      .orient("left")
      //   .outerTickSize(0)
         .tickSize(-width, 0, 0) 
         .tickFormat(formatPoints);
-
-   var gx = chart.svg.append("g")
-        .attr("class", "x axis")
-        .attr("transform", "translate(0," + (height) + ")")
-        .call(xAxis) 
- //   gx.selectAll("g").filter(function(d) { return d;}) //need to use filter since true values do not return 0
- //       .classed("minor", true);
-   //   .attr("transform")
-    gx.selectAll("text")
-       .attr("transform", "translate(0," + (height* -.5) + ")")
-    gx.append("text")
-        .attr("text-anchor", "middle")
-        .attr("transform", "translate(" + (width /2) + " ," + (margin.bottom) + ")")
-        .style("text-anchor", "middle")
-        .text("Poverty");
-
-
-
-    var gy= chart.svg.append("g")
-        .attr("class", "y axis")
-     //   .attr("transform", "translate(" + ",0)")
-        .call(yAxis)
- //   gy.selectAll("g").filter(function(d) { return d;})
- //       .classed("minor", true);
-    gy.selectAll("text") 
-       .attr("x", -1)
-       .attr("dy", 0);
-    gy.append("text")
-       .attr("transform", "rotate(-90)")
-       .attr("y", -42)
-       .attr("x", margin.top - (height/2))
-       .attr("dy", ".71em")
-       .style("text-anchor", "middle")
-       .text("Math proficiency");
 
 
 //    chart.update();
@@ -351,7 +332,102 @@ function getValueOfData(d) {
 }
 
 
+
 Scatterplot.prototype.update = function() {
+
+  var chart = this;
+
+  var scatterData = []
+
+  for (var i = 0; i < chart.data.length; i++) {
+    scatterData.push({state: chart.data[i].state,
+       poverty: chart.data[i].poverty,
+       race: "white",
+       m_diff: chart.data[i].m_diff_white,
+       r_diff: chart.data[i].r_diff_white})
+    scatterData.push({state: chart.data[i].state,
+       poverty: chart.data[i].poverty,
+       race: "black",
+       m_diff: chart.data[i].m_diff_black,
+       r_diff: chart.data[i].r_diff_wblack})
+    scatterData.push({state: chart.data[i].state,
+       poverty: chart.data[i].poverty,
+       race: "his",
+       m_diff: chart.data[i].m_diff_his,
+       r_diff: chart.data[i].r_diff_his})
+  }
+
+  //data = data.filter(function (d) {
+    //console.log(d)
+  //   return d == "m_diff_white" || d == "m_diff_his" || d == "m_diff_black"
+  //});
+
+
+
+
+
+  //AXES
+
+  var gx = chart.svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + (height) + ")")
+        .call(chart.xAxis) 
+    gx.selectAll("g").filter(function(d) { return d;}) //need to use filter since true values do not return 0
+        .classed("minor", true);
+    gx.selectAll("text")
+       .attr("transform", "translate(0," + (height* -.5) + ")")
+    gx.append("text")
+        .attr("text-anchor", "middle")
+        .attr("transform", "translate(" + (width /2) + " ," + (margin.bottom) + ")")
+        .style("text-anchor", "middle")
+        .text("Poverty");
+
+
+
+    var gy= chart.svg.append("g")
+        .attr("class", "y axis")
+     //   .attr("transform", "translate(" + ",0)")
+        .call(chart.yAxis)
+    gy.selectAll("g").filter(function(d) { return d;})
+        .classed("minor", true);
+    gy.selectAll("text") 
+        .attr("x", -1)
+        .attr("dy", 0);
+    gy.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", -42)
+        .attr("x", margin.top - (height/2))
+        .attr("dy", ".71em")
+        .style("text-anchor", "middle")
+        .text("Math proficiency");
+
+    var points = chart.svg.selectAll('.point') //point is used instead of circles, in case different shapes are used
+      .data(scatterData);
+    points.enter().append('circle')  //add points if points don't exist
+      .attr('class', 'point')
+      .attr('r', 7)
+      .attr('cx', function (d) { return chart.x(d.poverty); })
+      .attr('cy', function (d) { return chart.y(d.m_diff); })
+      .style("fill", function (d) {
+        if (d.race == "white") { return "#fff"; } 
+        else if (d.race == "his") { return "#323299";}
+        else if (d.race== "black") { return "#ffa500";}
+      })
+      
+    points.exit().remove();
+
+  // CHANGING POINTS
+ /* function reSort (sortedCategory) {
+
+    if (sortedData == 'r_diff')
+  }
+   chart.data = data.slice();
+    if (currentKey !== 'math_diff') {
+      chart.data = schoolData.filter(function (d) {
+      //  return d.Category >= categoryRange[0] && d.Category <= categoryRange[1];
+          return d.Category === d3.event.target.value;
+      });
+    } */
 
 }
 

@@ -139,3 +139,15 @@
       stroke: #000;
       shape-rendering: crispEdges;
     }
+
+    .axis .minor line {
+      stroke: #777;
+      stroke-dasharray: 2,2;
+    }
+
+      .point {
+      stroke: #697fd7;
+      stroke-width: 2;
+      fill: #697fd7;
+      opacity: .6;
+    }
