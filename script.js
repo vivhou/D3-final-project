@@ -81,10 +81,15 @@ var path = d3.geoPath()
 function Choropleth(states, data) {
   var chart = this;
 
-
-  chart.svg = d3.select("#chart1").append("svg")
-    .attr('width', width + margin.left + margin.right)
-    .attr('height', height + margin.top + margin.bottom);
+  chart.svg = d3.select("#chart1")
+      .append("div")
+      .classed("svg-container", true)
+      .append("svg")
+      .attr("preserveAspectRatio", "xMinYMin meet")
+      .attr("viewBox", "0 0 600 500")
+      .classed("svg-content-responsive", true);
+   // .attr('width', width + margin.left + margin.right)
+   // .attr('height', height + margin.top + margin.bottom);
 
 
   chart.mapFeatures = chart.svg.append('g')
@@ -178,9 +183,15 @@ function Choropleth(states, data) {
 
     chart.data = data
 
-    chart.svg = d3.select("#chart2").append("svg")
-      .attr('width', width + margin.left + margin.right)
-      .attr('height', height + margin.top + margin.bottom)
+    chart.svg = d3.select("#chart2")
+      .append("div")
+      .classed("svg-container", true)
+      .append("svg")
+      .attr("preserveAspectRatio", "xMinYMin meet")
+      .attr("viewBox", "0 -10 600 500")
+      .classed("svg-content-responsive", true)
+     // .attr('width', width + margin.left + margin.right)
+     // .attr('height', height + margin.top + margin.bottom)
       .append('g')
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
@@ -441,7 +452,8 @@ Scatterplot.prototype.update = function() {
       .attr('class', 'point')
       .attr('r', 7)
       .attr('cx', function (d) { return chart.x(d.poverty); })
-      .attr('cy', function (d) { return chart.y(filterData); }) 
+      .attr('cy', function (d) { return chart.y(filterData(d)); }) 
+
       .style("fill", function (d) {
         if (d.race == "white") { return "#fff"; } 
         else if (d.race == "his") { return "#323299";}
@@ -464,6 +476,9 @@ Scatterplot.prototype.update = function() {
     } */
 
 }
+
+
+
 
 
 
