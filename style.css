@@ -136,13 +136,16 @@
     .axis path,
     .axis line {
       fill: none;
-      stroke: #000;
+      stroke: #45cab2;
+      stroke-width: 2px;
       shape-rendering: crispEdges;
+      opacity: 0.7;
     }
 
     .axis .minor line {
-      stroke: #777;
+      stroke: #45cab2;
       stroke-dasharray: 2,2;
+      opacity: 0.5;
     }
 
       .point {

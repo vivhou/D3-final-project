@@ -1,5 +1,35 @@
 //map is forked from a combination of https://github.com/githamm/us-state-squares and https://github.com/lvonlanthen/data-map-d3
 
+var scatterData = [];
+
+var options= {
+    filtered: false
+};
+
+
+  // EVENT HANDLERS
+d3.select('#sort_math').on('click', function () {
+    if (options.filtered === 'select_math') {
+      options.filtered = true;
+    } else {
+      options.filtered = 'select_math';
+    }
+    scatterplot.update();
+    d3.select('#sort_math').classed('active', true);
+    d3.select('#sort_read').classed('active', false);
+  }); 
+
+d3.select('#sort_read').on('click', function () {
+    if (options.filtered === 'select_reading') {
+      options.filtered = false;
+    } else {
+      options.filtered = 'select_reading';
+    }
+    scatterplot.update();
+    d3.select('#sort_math').classed('active', false);
+    d3.select('#sort_read').classed('active', true);
+  }); 
+
 
 var currentKey = 'math_diff';
 
@@ -29,7 +59,6 @@ var path = d3.geoPath()
   queue()
     .defer(d3.json, "../state_squares.geojson")
     .defer(d3.csv, "/data/map_data.csv")
-    .defer(d3.csv, "/data/score_differences.csv")
     .awaitAll(function(error, results) {
       if (error) { throw error; }
 
@@ -335,9 +364,9 @@ function getValueOfData(d) {
 
 Scatterplot.prototype.update = function() {
 
+
   var chart = this;
 
-  var scatterData = []
 
   for (var i = 0; i < chart.data.length; i++) {
     scatterData.push({state: chart.data[i].state,
@@ -356,14 +385,6 @@ Scatterplot.prototype.update = function() {
        m_diff: chart.data[i].m_diff_his,
        r_diff: chart.data[i].r_diff_his})
   }
-
-  //data = data.filter(function (d) {
-    //console.log(d)
-  //   return d == "m_diff_white" || d == "m_diff_his" || d == "m_diff_black"
-  //});
-
-
-
 
 
   //AXES
@@ -400,6 +421,19 @@ Scatterplot.prototype.update = function() {
         .attr("dy", ".71em")
         .style("text-anchor", "middle")
         .text("Math proficiency");
+   
+      
+ var filterData = function(d) {
+      if (options.filtered) {
+        if (options.filtered === 'select_math') {
+          scatterData = scatterData.filter(function (d) {
+            return d.m_diff; })
+        } else if (options.filtered === 'select_reading') {
+                scatterData = scatterData.filter(function (d) {
+                  return d.r_diff; })
+          }
+      }
+    }
 
     var points = chart.svg.selectAll('.point') //point is used instead of circles, in case different shapes are used
       .data(scatterData);
@@ -407,7 +441,7 @@ Scatterplot.prototype.update = function() {
       .attr('class', 'point')
       .attr('r', 7)
       .attr('cx', function (d) { return chart.x(d.poverty); })
-      .attr('cy', function (d) { return chart.y(d.m_diff); })
+      .attr('cy', function (d) { return chart.y(filterData); }) 
       .style("fill", function (d) {
         if (d.race == "white") { return "#fff"; } 
         else if (d.race == "his") { return "#323299";}
