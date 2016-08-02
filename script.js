@@ -15,6 +15,7 @@ d3.select('#sort_math').on('click', function () {
       options.filtered = 'select_math';
     //}
     scatterplot.update();
+    choropleth.update();
     d3.select('#sort_math').classed('active', true);
     d3.select('#sort_read').classed('active', false);
   }); 
@@ -26,12 +27,13 @@ d3.select('#sort_read').on('click', function () {
       options.filtered = 'select_reading';
     //}
     scatterplot.update();
+    choropleth.update();
     d3.select('#sort_math').classed('active', false);
     d3.select('#sort_read').classed('active', true);
   }); 
 
 
-var currentKey = 'math_diff';
+//var currentKey = 'math_diff';
 
 var margin = { top: 5, right: 15, bottom: 20, left: 15 } ; 
 var width = 600 - margin.right - margin.left;
@@ -70,11 +72,11 @@ var path = d3.geoPath()
     scatterplot.update();
 
 
-    d3.select('#categories').on('change', function () {
+   /* d3.select('#categories').on('change', function () {
       currentKey = d3.select(this).property('value');
       choropleth.update(results[0],results[1]);
       scatterplot.update(results[1]);
-      });
+      });*/
     });
 
 
@@ -107,6 +109,7 @@ function Choropleth(states, data) {
       var r_diff_white = data[i].r_diff_white;
       var r_diff_black = data[i].r_diff_black;
       var r_diff_his = data[i].r_diff_his;
+      var state_name = data[i].state_name;
 
 
 
@@ -123,6 +126,7 @@ function Choropleth(states, data) {
           states.features[j].properties.r_diff_white = r_diff_white;
           states.features[j].properties.r_diff_black = r_diff_black;
           states.features[j].properties.r_diff_his = r_diff_his;
+          states.features[j].properties.state_name = state_name;
 
           break;
         }
@@ -178,114 +182,6 @@ function Choropleth(states, data) {
   chart.states = states;
 } 
 
-  function Scatterplot(data) {
-    var chart = this;
-
-    chart.data = data
-
-    chart.svg = d3.select("#chart2")
-      .append("div")
-      .classed("svg-container", true)
-      .append("svg")
-      .attr("preserveAspectRatio", "xMinYMin meet")
-      .attr("viewBox", "0 -10 600 500")
-      .classed("svg-content-responsive", true)
-     // .attr('width', width + margin.left + margin.right)
-     // .attr('height', height + margin.top + margin.bottom)
-      .append('g')
-      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
-
- 
-    // SCALES
-
-    chart.x = d3.scaleLinear()
-      .domain([0, d3.max(chart.data, function (d) { return d.poverty; })]) 
-      .range([0, width])
-      .nice();
-
-    var y0 = Math.max(-d3.min(chart.data, function (d) {
-      return Math.max(d.m_diff_white, d.m_diff_his,d.m_diff_black);
-    }), d3.max(chart.data, function(d) { 
-      return Math.max(d.m_diff_white, d.m_diff_his,d.m_diff_black);
-    }));
-
-    chart.y = d3.scaleLinear()
-     // .domain(d3.extent(data, function (d) { return d.Math_proficient/100; })) 
-      .domain([-y0, y0])
-      .range([height, 0])
-      .nice();
-
-    // AXES
-
-    var formatPercentage = d3.format(".1%");
-    var formatPercentage_x = function(d) { if (d > 0) {
-      return formatPercentage(d); }
-    };
-
-    var formatPoints = d3.format("");
-
-    chart.xAxis = d3.axisBottom()
-        .scale(chart.x)
-        .ticks(10)
-        //.orient("top")
-        .tickSize(-height) 
-        .tickFormat(formatPercentage_x);
-
-
-
-
-    chart.yAxis = d3.axisLeft()
-        .scale(chart.y)
-      //  .ticks(16)
-  //      .orient("left")
-     //   .outerTickSize(0)
-        .tickSize(-width, 0, 0) 
-        .tickFormat(formatPoints);
-
-
-  //AXES
-
-  var gx = chart.svg.append("g")
-        .attr("class", "x axis")
-        .attr("transform", "translate(0," + (height) + ")")
-        .call(chart.xAxis) 
-    gx.selectAll("g").filter(function(d) { return d;}) //need to use filter since true values do not return 0
-        .classed("minor", true);
-    gx.selectAll("text")
-       .attr("transform", "translate(0," + (height* -.5) + ")")
-       console.log(width)
-    gx.append("text")
-        .attr('class', 'labels')
-        .attr("transform", "translate(" + (width /2) + " ," + (height/20) + ")")
-        .style("fill", "black")
-        .attr("text-anchor", "middle")
-        .text("Poverty");
-
-
-
-    var gy= chart.svg.append("g")
-        .attr("class", "y axis")
-     //   .attr("transform", "translate(" + ",0)")
-        .call(chart.yAxis)
-    gy.selectAll("g").filter(function(d) { return d;})
-        .classed("minor", true);
-    gy.selectAll("text") 
-        .attr("x", -1)
-        .attr("dy", 0);
-    gy.append("text")
-        .attr('class', 'labels')
-        .attr("transform", "rotate(-90)")
-        .style("fill", "black")
-
-        .attr("y", - (height/29))
-        .attr("x", - (width/3))
-        .attr("dy", ".71em")
-        .style("text-anchor", "middle")
-        .text("Math proficiency");
-
-        chart.update();
-   
-  }
 
 
 
@@ -366,10 +262,22 @@ Choropleth.prototype.update = function () {
         return quantize.range()[i];
       });
 
-  var keyDropdown = d3.select('#categories').node();
-  var selectedOption = keyDropdown.options[keyDropdown.selectedIndex];
+  /*var keyButton = d3.select('#categories').node();
+  var selectedOption = keyButton.options[keyButton.selectedIndex];
   var legendText = chart.g.selectAll('text.caption')
-      .text(selectedOption.text);
+      .text(selectedOption.text); */
+
+  var selectedButton = function (d) {
+    if (options.filtered === 'select_math') {
+          return document.getElementById("sort_math").textContent;
+        } else {
+          return document.getElementById("sort_read").textContent;
+        }
+
+} 
+
+
+    
 
 
   // We set the calculated domain as tickValues for the legend axis.
@@ -395,8 +303,8 @@ Choropleth.prototype.update = function () {
 
         chart.tooltip.append("p")
             .attr("class", "tooltip_text")
-            .html("State" + ": <b>" + d.properties.abbr + "</b><br /> <u>" + selectedOption.text + "</u>:<b> " + 
-              format(d.properties[currentKey]) + "</b>")
+            .html("State" + ": <b>" + d.properties.state_name + "</b><br /> <u>" + selectedButton + "</u>:<b> " + 
+              format(d.math_diff) + "</b>")
       })        
       .on("mouseout", function(d) {       
           chart.tooltip.html("")
@@ -408,9 +316,126 @@ Choropleth.prototype.update = function () {
 }
 
 function getValueOfData(d) {
-  return +d.properties[currentKey]
-}
+  if (options.filtered === 'select_math') {
+          return +d.properties.math_diff; 
+        } else {
+          return +d.properties.read_diff;
+        }
+        console.log(+d.properties.math_diff)
+} 
 
+
+
+ function Scatterplot(data) {
+    var chart = this;
+
+    chart.data = data
+
+    chart.svg = d3.select("#chart2")
+      .append("div")
+      .classed("svg-container", true)
+      .append("svg")
+      .attr("preserveAspectRatio", "xMinYMin meet")
+      .attr("viewBox", "0 -10 600 500")
+      .classed("svg-content-responsive", true)
+     // .attr('width', width + margin.left + margin.right)
+     // .attr('height', height + margin.top + margin.bottom)
+      .append('g')
+      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+ 
+    // SCALES
+
+    chart.x = d3.scaleLinear()
+      .domain([0, d3.max(chart.data, function (d) { return d.poverty; })]) 
+      .range([0, width])
+      .nice();
+
+    var y0 = Math.max(-d3.min(chart.data, function (d) {
+      return Math.max(d.m_diff_white, d.m_diff_his,d.m_diff_black);
+    }), d3.max(chart.data, function(d) { 
+      return Math.max(d.m_diff_white, d.m_diff_his,d.m_diff_black);
+    }));
+
+    chart.y = d3.scaleLinear()
+     // .domain(d3.extent(data, function (d) { return d.Math_proficient/100; })) 
+      .domain([-y0, y0])
+      .range([height, 0])
+      .nice();
+
+    // AXES
+
+    var formatPercentage = d3.format(".1%");
+    var formatPercentage_x = function(d) { if (d > 0) {
+      return formatPercentage(d); }
+    };
+
+    var formatPoints = d3.format("");
+
+    chart.xAxis = d3.axisBottom()
+        .scale(chart.x)
+        .ticks(10)
+        //.orient("top")
+        .tickSize(-height) 
+        .tickFormat(formatPercentage_x);
+
+
+
+
+    chart.yAxis = d3.axisLeft()
+        .scale(chart.y)
+      //  .ticks(16)
+  //      .orient("left")
+     //   .outerTickSize(0)
+        .tickSize(-width, 0, 0) 
+        .tickFormat(formatPoints);
+
+
+  //AXES
+
+    var gx = chart.svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + (height) + ")")
+        .call(chart.xAxis) 
+    gx.selectAll("g").filter(function(d) { return d;}) //need to use filter since true values do not return 0
+        .classed("minor", true);
+    gx.selectAll("text")
+       .attr("transform", "translate(0," + (height*.005) + ")")  
+    gx.append("text")
+        .attr('class', 'labels')
+        .attr("transform", "translate(" + (width /2) + " ," + (height/18) + ")")
+        .style("fill", "black")
+        .attr("text-anchor", "middle")
+        .text("Poverty");
+
+
+
+    var gy= chart.svg.append("g")
+        .attr("class", "y axis")
+     //   .attr("transform", "translate(" + ",0)")
+        .call(chart.yAxis)
+    gy.selectAll("g").filter(function(d) { return d;})
+        .classed("minor", true);
+    gy.selectAll("text") 
+        .attr("x", -1)
+        .attr("dy", 0)
+        .style("fill", function(d) { if (d <0) {
+          return "red"; }
+          else { return "black"; }
+        });
+    gy.append("text")
+        .attr('class', 'labels')
+        .attr("transform", "rotate(-90)")
+        .style("fill", "black") 
+        .attr("y", - (height/29))
+        .attr("x", - (width/3))
+        .attr("dy", ".71em")
+        .style("text-anchor", "middle")
+        .text("Math proficiency");
+
+        chart.update();
+   
+  }
 
 
 Scatterplot.prototype.update = function() {
@@ -462,7 +487,6 @@ Scatterplot.prototype.update = function() {
       }
         return "0.6";
       })
-
       .style("fill", function (d) {
         if (d.race == "white") { return "#fff"; } 
         else if (d.race == "his") { return "#323299";}
@@ -473,20 +497,10 @@ Scatterplot.prototype.update = function() {
       
     points.exit().remove();
 
-  // CHANGING POINTS
- /* function reSort (sortedCategory) {
-
-    if (sortedData == 'r_diff')
-  }
-   chart.data = data.slice();
-    if (currentKey !== 'math_diff') {
-      chart.data = schoolData.filter(function (d) {
-      //  return d.Category >= categoryRange[0] && d.Category <= categoryRange[1];
-          return d.Category === d3.event.target.value;
-      });
-    } */
 
 }
+
+
 
 
 

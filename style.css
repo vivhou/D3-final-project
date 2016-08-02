@@ -123,13 +123,13 @@
     /* Thanks to http://colorbrewer2.org/ */
     .YlGnBu .q0-9{fill:#BC4963}
     .YlGnBu .q1-9{fill:#C16579}
-    .YlGnBu .q2-9{fill:#C58090}
-    .YlGnBu .q3-9{fill:#CA9CA6}
-    .YlGnBu .q4-9{fill:#CEB7BD}
-    .YlGnBu .q5-9{fill:#D3D3D3}
-    .YlGnBu .q6-9{fill:#A4D0C8}
-    .YlGnBu .q7-9{fill:#74CDBD}
-    .YlGnBu .q8-9{fill:#45CAB2}
+    .YlGnBu .q2-9{fill:#d099a6}
+    .YlGnBu .q3-9{fill:#D3D3D3}
+    .YlGnBu .q4-9{fill:#c8e2de}
+    .YlGnBu .q5-9{fill:#A4D0C8}
+    .YlGnBu .q6-9{fill:#74CDBD}
+    .YlGnBu .q7-9{fill:#45CAB2}
+    .YlGnBu .q8-9{fill:#37a18e}
 
 
     g.features {
@@ -162,7 +162,7 @@
     .point {
       stroke: none;
       fill: none;
-      opacity: 0.6;
+      opacity: 0.5;
     }
 
     .svg-container {
