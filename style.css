@@ -23,6 +23,15 @@
 
     }
 
+    .axis text {
+      font-size: 9px;
+    }
+
+    .axis .labels {
+      font-size: 12px;
+      letter-spacing: 2px;
+    }
+
     .axis path {
       fill: "none";
       stroke: #fff;
@@ -60,9 +69,10 @@
 
 
     text {
-      font-family: 'EB Garamond', serif;
-      font-size: 12px;
+      font-family: 'Lato', serif;
+      font-size: 9px;
       pointer-events: none;
+
     }
 
     .source {
@@ -148,11 +158,11 @@
       opacity: 0.5;
     }
 
-      .point {
-      stroke: #697fd7;
-      stroke-width: 2;
-      fill: #697fd7;
-      opacity: .6;
+
+    .point {
+      stroke: none;
+      fill: none;
+      opacity: 0.6;
     }
 
     .svg-container {

@@ -243,7 +243,47 @@ function Choropleth(states, data) {
         .tickFormat(formatPoints);
 
 
-//    chart.update();
+  //AXES
+
+  var gx = chart.svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + (height) + ")")
+        .call(chart.xAxis) 
+    gx.selectAll("g").filter(function(d) { return d;}) //need to use filter since true values do not return 0
+        .classed("minor", true);
+    gx.selectAll("text")
+       .attr("transform", "translate(0," + (height* -.5) + ")")
+       console.log(width)
+    gx.append("text")
+        .attr('class', 'labels')
+        .attr("transform", "translate(" + (width /2) + " ," + (height/20) + ")")
+        .style("fill", "black")
+        .attr("text-anchor", "middle")
+        .text("Poverty");
+
+
+
+    var gy= chart.svg.append("g")
+        .attr("class", "y axis")
+     //   .attr("transform", "translate(" + ",0)")
+        .call(chart.yAxis)
+    gy.selectAll("g").filter(function(d) { return d;})
+        .classed("minor", true);
+    gy.selectAll("text") 
+        .attr("x", -1)
+        .attr("dy", 0);
+    gy.append("text")
+        .attr('class', 'labels')
+        .attr("transform", "rotate(-90)")
+        .style("fill", "black")
+
+        .attr("y", - (height/29))
+        .attr("x", - (width/3))
+        .attr("dy", ".71em")
+        .style("text-anchor", "middle")
+        .text("Math proficiency");
+
+        chart.update();
    
   }
 
@@ -389,7 +429,7 @@ Scatterplot.prototype.update = function() {
        poverty: chart.data[i].poverty,
        race: "black",
        m_diff: chart.data[i].m_diff_black,
-       r_diff: chart.data[i].r_diff_wblack})
+       r_diff: chart.data[i].r_diff_black})
     scatterData.push({state: chart.data[i].state,
        poverty: chart.data[i].poverty,
        race: "his",
@@ -398,81 +438,38 @@ Scatterplot.prototype.update = function() {
   }
 
 
-  //AXES
-
-  var gx = chart.svg.append("g")
-        .attr("class", "x axis")
-        .attr("transform", "translate(0," + (height) + ")")
-        .call(chart.xAxis) 
-    gx.selectAll("g").filter(function(d) { return d;}) //need to use filter since true values do not return 0
-        .classed("minor", true);
-    gx.selectAll("text")
-       .attr("transform", "translate(0," + (height* -.5) + ")")
-    gx.append("text")
-        .attr("text-anchor", "middle")
-        .attr("transform", "translate(" + (width /2) + " ," + (margin.bottom) + ")")
-        .style("text-anchor", "middle")
-        .text("Poverty");
-
-
-
-    var gy= chart.svg.append("g")
-        .attr("class", "y axis")
-     //   .attr("transform", "translate(" + ",0)")
-        .call(chart.yAxis)
-    gy.selectAll("g").filter(function(d) { return d;})
-        .classed("minor", true);
-    gy.selectAll("text") 
-        .attr("x", -1)
-        .attr("dy", 0);
-    gy.append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", -42)
-        .attr("x", margin.top - (height/2))
-        .attr("dy", ".71em")
-        .style("text-anchor", "middle")
-        .text("Math proficiency");
-   
-   /*   
- var filterData = function(d) {
-      if (options.filtered) {
-        if (options.filtered === 'select_math') {
-          scatterData = scatterData.filter(function (d) {
-            return d.m_diff; })
-        } else if (options.filtered === 'select_reading') {
-                scatterData = scatterData.filter(function (d) {
-                  return d.r_diff; })
-          }
-      }
-    }
-    */
-
     var points = chart.svg.selectAll('.point') //point is used instead of circles, in case different shapes are used
       .data(scatterData);
-    points.enter().append('circle')  //add points if points don't exist
+
+    points.enter().append('circle')
       .attr('class', 'point')
-      .attr('r', 7)
+      .attr('r', 7);
+
+    points
       .attr('cx', function (d) { return chart.x(d.poverty); })
       .attr('cy', function (d) { 
-        console.log(options.filtered)
         if (options.filtered === 'select_math') {
-          console.log(d.m_diff)
           return chart.y(d.m_diff)
         } else {
-          console.log(d.m_diff)
-          if (isNaN(d.r_diff)) {
-            return chart.y(0.0)
-          }
           return chart.y(d.r_diff)
         }
         //return chart.y(filterData(d)); 
-      }) 
+      })
+      .style('opacity', function(d) {
+        if (d.r_diff == 0) {return "0";}
+       // if (isNaN(d.r_diff)) {return "0";}
+        else { if (d.m_diff == 0) {return "0";}
+      }
+        return "0.6";
+      })
 
       .style("fill", function (d) {
         if (d.race == "white") { return "#fff"; } 
         else if (d.race == "his") { return "#323299";}
         else if (d.race== "black") { return "#ffa500";}
       })
+      .style("stroke", "#697fd7")
+      .style("stroke-width", "3")
       
     points.exit().remove();
 
