@@ -3,28 +3,28 @@
 var scatterData = [];
 
 var options= {
-    filtered: false
+    filtered: 'select_math'
 };
 
 
   // EVENT HANDLERS
 d3.select('#sort_math').on('click', function () {
-    if (options.filtered === 'select_math') {
-      options.filtered = true;
-    } else {
+    //if (options.filtered === 'select_math') {
+    //  options.filtered = true;
+    //} else {
       options.filtered = 'select_math';
-    }
+    //}
     scatterplot.update();
     d3.select('#sort_math').classed('active', true);
     d3.select('#sort_read').classed('active', false);
   }); 
 
 d3.select('#sort_read').on('click', function () {
-    if (options.filtered === 'select_reading') {
-      options.filtered = false;
-    } else {
+    //if (options.filtered === 'select_reading') {
+    //  options.filtered = false;
+    //} else {
       options.filtered = 'select_reading';
-    }
+    //}
     scatterplot.update();
     d3.select('#sort_math').classed('active', false);
     d3.select('#sort_read').classed('active', true);
@@ -433,7 +433,7 @@ Scatterplot.prototype.update = function() {
         .style("text-anchor", "middle")
         .text("Math proficiency");
    
-      
+   /*   
  var filterData = function(d) {
       if (options.filtered) {
         if (options.filtered === 'select_math') {
@@ -445,6 +445,7 @@ Scatterplot.prototype.update = function() {
           }
       }
     }
+    */
 
     var points = chart.svg.selectAll('.point') //point is used instead of circles, in case different shapes are used
       .data(scatterData);
@@ -452,7 +453,20 @@ Scatterplot.prototype.update = function() {
       .attr('class', 'point')
       .attr('r', 7)
       .attr('cx', function (d) { return chart.x(d.poverty); })
-      .attr('cy', function (d) { return chart.y(filterData(d)); }) 
+      .attr('cy', function (d) { 
+        console.log(options.filtered)
+        if (options.filtered === 'select_math') {
+          console.log(d.m_diff)
+          return chart.y(d.m_diff)
+        } else {
+          console.log(d.m_diff)
+          if (isNaN(d.r_diff)) {
+            return chart.y(0.0)
+          }
+          return chart.y(d.r_diff)
+        }
+        //return chart.y(filterData(d)); 
+      }) 
 
       .style("fill", function (d) {
         if (d.race == "white") { return "#fff"; } 
