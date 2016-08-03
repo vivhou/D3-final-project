@@ -201,11 +201,12 @@ Choropleth.prototype.update = function () {
     return quantize(getValueOfData(d));
   })
   .style('stroke', function(d) {
-    if (d.properties['poverty'] >= 15.6) {
+    if (d.properties['poverty'] >= .156) {
       return "#697fd7"};
   })
+
   .style('stroke-width', function(d) {
-    if (d.properties['poverty'] >= 15.6) {return "3px"};
+    if (d.properties['poverty'] >= .156) {return "3px"};
   })
   .delay(function(d, i) { 
     return i*10;
@@ -267,17 +268,14 @@ Choropleth.prototype.update = function () {
   var legendText = chart.g.selectAll('text.caption')
       .text(selectedOption.text); */
 
-  var selectedButton = function (d) {
+  function selectedButton() {
     if (options.filtered === 'select_math') {
-          return document.getElementById("sort_math").textContent;
-        } else {
-          return document.getElementById("sort_read").textContent;
-        }
+      return document.getElementById("sort_math").textContent;
+    } else {
+      return document.getElementById("sort_read").textContent;
+      }
+  }
 
-} 
-
-
-    
 
 
   // We set the calculated domain as tickValues for the legend axis.
@@ -287,8 +285,6 @@ Choropleth.prototype.update = function () {
   chart.g.call(chart.legendXAxis);
 
 
-     // .on('mouseover', tip.show)
-     // .on('mouseout', tip.hide)
   //TOOLTIP
  
 
@@ -303,8 +299,9 @@ Choropleth.prototype.update = function () {
 
         chart.tooltip.append("p")
             .attr("class", "tooltip_text")
-            .html("State" + ": <b>" + d.properties.state_name + "</b><br /> <u>" + selectedButton + "</u>:<b> " + 
-              format(d.math_diff) + "</b>")
+            .html("State" + ": <b>" + d.properties.state_name + "</b><br /> <u>" +
+              selectedButton() + "</u>:<b> " + 
+              format(getValueOfData(d)) + "%" + "</b>")
       })        
       .on("mouseout", function(d) {       
           chart.tooltip.html("")
@@ -321,7 +318,6 @@ function getValueOfData(d) {
         } else {
           return +d.properties.read_diff;
         }
-        console.log(+d.properties.math_diff)
 } 
 
 
@@ -493,7 +489,7 @@ Scatterplot.prototype.update = function() {
         else if (d.race== "black") { return "#ffa500";}
       })
       .style("stroke", "#697fd7")
-      .style("stroke-width", "3")
+      .style("stroke-width", "2")
       
     points.exit().remove();
 
