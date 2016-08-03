@@ -120,7 +120,7 @@
       shape-rendering: crispEdges;
     }
 
-    /* Thanks to http://colorbrewer2.org/ */
+    /*Thanks to https://github.com/lvonlanthen/data-map-d3 */
     .YlGnBu .q0-9{fill:#BC4963}
     .YlGnBu .q1-9{fill:#C16579}
     .YlGnBu .q2-9{fill:#d099a6}

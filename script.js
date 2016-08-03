@@ -282,7 +282,10 @@ Choropleth.prototype.update = function () {
   chart.legendXAxis
     .tickValues(chart.legendDomain)
 
-  chart.g.call(chart.legendXAxis);
+  chart.g
+  .transition()
+  .duration(1000)
+  .call(chart.legendXAxis);
 
 
   //TOOLTIP
@@ -413,8 +416,8 @@ function getValueOfData(d) {
     gy.selectAll("g").filter(function(d) { return d;})
         .classed("minor", true);
     gy.selectAll("text") 
-        .attr("x", -1)
-        .attr("dy", 0)
+        .attr("x", 14)
+        .attr("dy", -2)
         .style("fill", function(d) { if (d <0) {
           return "red"; }
           else { return "black"; }
@@ -429,16 +432,7 @@ function getValueOfData(d) {
         .style("text-anchor", "middle")
         .text("Math proficiency");
 
-        chart.update();
-   
-  }
-
-
-Scatterplot.prototype.update = function() {
-
-
-  var chart = this;
-
+  //Creating new Dataset
 
   for (var i = 0; i < chart.data.length; i++) {
     scatterData.push({state: chart.data[i].state,
@@ -464,9 +458,7 @@ Scatterplot.prototype.update = function() {
 
     points.enter().append('circle')
       .attr('class', 'point')
-      .attr('r', 7);
-
-    points
+      .attr('r', 7)
       .attr('cx', function (d) { return chart.x(d.poverty); })
       .attr('cy', function (d) { 
         if (options.filtered === 'select_math') {
@@ -490,11 +482,36 @@ Scatterplot.prototype.update = function() {
       })
       .style("stroke", "#697fd7")
       .style("stroke-width", "2")
-      
-    points.exit().remove();
+        chart.update();
+   
+  }
 
 
-}
+Scatterplot.prototype.update = function() {
+
+//idea inspired by http://bl.ocks.org/WilliamQLiu/bd12f73d0b79d70bfbae
+  var chart = this;
+
+  chart.svg.selectAll('.point') //point is used instead of circles, in case different shapes are used
+    .data(scatterData)
+
+//Create Circles
+    .transition()
+    .duration(1000)
+    .delay(function(d, i) {
+      return i / scatterData.length * 500;  // Dynamic delay (i.e. each item delays a little longer)
+      })
+    .attr('cx', function (d) { return chart.x(d.poverty); })
+    .attr('cy', function (d) { if (options.filtered === 'select_math') {
+      return chart.y(d.m_diff)
+    } else { return chart.y(d.r_diff)
+      } 
+    })
+      //return chart.y(filterData(d)); 
+  
+//  points.exit().remove();
+
+  }
 
 
 
