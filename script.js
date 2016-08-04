@@ -168,7 +168,7 @@ function Choropleth(states, data) {
   chart.g.append("text")
       .attr("class", "caption")
       .attr("y", -6)
-      .attr("x", 25)
+      .attr("x", 100)
 //TOOLTIP
 
   chart.tooltip = d3.select("body").append("div")   
@@ -266,6 +266,8 @@ Choropleth.prototype.update = function () {
   var legendText = chart.g.selectAll('text.caption')
       .text(selectedOption.text); */
 
+  //RETRIEVING TEXT OF BUTTON FOR TOOLTIP AND LEGEND
+
   function selectedButton() {
     if (options.filtered === 'select_math') {
       return document.getElementById("sort_math").textContent;
@@ -274,6 +276,10 @@ Choropleth.prototype.update = function () {
       }
   }
 
+//ADDING LEGEND LABEL
+
+  var legendText = chart.g.selectAll('text.caption')
+      .text("Percent Change in " + selectedButton() + "Profiency" );
 
 
   // We set the calculated domain as tickValues for the legend axis.
@@ -300,8 +306,8 @@ Choropleth.prototype.update = function () {
 
         chart.tooltip.append("p")
             .attr("class", "tooltip_text")
-            .html("State" + ": <b>" + d.properties.state_name + "</b><br /> <u>" +
-              selectedButton() + "</u>:<b> " + 
+            .html("State" + ": <b>" + d.properties.state_name + "</b><br /> <u>" + 
+              "% Change in " + selectedButton() + " Proficiency" + "</u>:<b> " + 
               format(getValueOfData(d)) + "%" + "</b>")
       })        
       .on("mouseout", function(d) {       
@@ -318,6 +324,14 @@ function getValueOfData(d) {
           return +d.properties.math_diff; 
         } else {
           return +d.properties.read_diff;
+        }
+} 
+
+function getValueOfScatterData(d) {
+  if (options.filtered === 'select_math') {
+          return +d.m_diff; 
+        } else {
+          return +d.r_diff;
         }
 } 
 
@@ -403,7 +417,7 @@ function getValueOfData(d) {
         .attr("transform", "translate(" + (width /2) + " ," + (height/18) + ")")
         .style("fill", "black")
         .attr("text-anchor", "middle")
-        .text("Poverty");
+        .text("Poverty Rate");
 
 
 
@@ -424,26 +438,29 @@ function getValueOfData(d) {
         .attr('class', 'labels')
         .attr("transform", "rotate(-90)")
         .style("fill", "black") 
-        .attr("y", - (height/29))
+        .attr("y", - (height*.03))
         .attr("x", - (width/3))
         .attr("dy", ".71em")
         .style("text-anchor", "middle")
-        .text("Math proficiency");
+        .text("-     Point Score Difference     +");
 
   //Creating new Dataset
 
   for (var i = 0; i < chart.data.length; i++) {
     scatterData.push({state: chart.data[i].state,
+       state: chart.data[i].state_name,
        poverty: chart.data[i].poverty,
        race: "white",
        m_diff: chart.data[i].m_diff_white,
        r_diff: chart.data[i].r_diff_white})
     scatterData.push({state: chart.data[i].state,
+       state: chart.data[i].state_name,
        poverty: chart.data[i].poverty,
        race: "black",
        m_diff: chart.data[i].m_diff_black,
        r_diff: chart.data[i].r_diff_black})
     scatterData.push({state: chart.data[i].state,
+       state: chart.data[i].state_name,
        poverty: chart.data[i].poverty,
        race: "his",
        m_diff: chart.data[i].m_diff_his,
@@ -451,10 +468,10 @@ function getValueOfData(d) {
   }
 
 
-    var points = chart.svg.selectAll('.point') //point is used instead of circles, in case different shapes are used
+    chart.points = chart.svg.selectAll('.point') //point is used instead of circles, in case different shapes are used
       .data(scatterData);
 
-    points.enter().append('circle')
+    chart.points.enter().append('circle')
       .attr('class', 'point')
       .attr('r', 7)
       .attr('cx', function (d) { return chart.x(d.poverty); })
@@ -481,20 +498,21 @@ function getValueOfData(d) {
       .style("stroke", "#697fd7")
       .style("stroke-width", "2")
 
-        //LEGEND
+  //LEGEND
 
            
-      var colors = [ 
+    var colors = [ 
         { race: "White", color: "#fff" },
         { race: "Hispanic", color: "#323299" },
         { race: "Black", color: "#ffa500" }
       ]
 
-      chart.legendScatter = d3.select('#scatter_legend').append('svg')
+    chart.legendScatter = d3.select('#scatter_legend').append('svg')
       .attr('width', '100%')
-      .attr('height', '80');
+      .attr('height', '100');
 
-      chart.g = chart.legendScatter.append("g")
+
+    chart.g = chart.legendScatter.append("g")
       .attr("class", "legend")
       .attr('transform', 'translate(' + -50 + ',' + 30 + ')');    
       
@@ -505,8 +523,8 @@ function getValueOfData(d) {
       .append("rect")
       .attr("x", width - 65)
       .attr("y", function(d, i){ return i *  20;})
-      .attr("width", 10)
-      .attr("height", 10)
+      .attr("width", 15)
+      .attr("height", 15)
       .style("fill", function(d) { 
         return d.color;
       })
@@ -516,15 +534,22 @@ function getValueOfData(d) {
       .data(colors)
       .enter()
       .append("text")
-    .attr("x", width - 52)
-      .attr("y", function(d, i){ return i *  20 + 9;})
+    .attr("x", width - 42)
+      .attr("y", function(d, i){ return i *  20 + 12 ;})
     .text(function(d) {
          return d.race;
       })
     .style("fill", "#000");
 
+    //TOOLTIP
 
-        chart.update();
+    chart.tooltip = d3.select("body").append("div")   
+          .attr("class", "tooltip")               
+          .style("opacity", 0);
+
+
+
+    chart.update();
   
 
 
@@ -547,10 +572,37 @@ Scatterplot.prototype.update = function() {
       })
     .attr('cx', function (d) { return chart.x(d.poverty); })
     .attr('cy', function (d) { if (options.filtered === 'select_math') {
-      return chart.y(d.m_diff)
-    } else { return chart.y(d.r_diff)
-      } 
+      return chart.y(d.m_diff);
+      } else { return chart.y(d.r_diff); } 
     })
+    .style("stroke", function (d) {
+      if (chart.y(d.m_diff) < 0) { return "#cc0000";}  
+        else {return "#697fd7"; } 
+    })
+
+
+  //TOOLTIP
+    format = d3.format(",d");
+    chart.points
+      .on("mouseover", function(d) {   
+          chart.tooltip.transition()        
+              .duration(200)      
+              .style("opacity", 0.8)
+              .style("left", (d3.event.pageX) + "px")     
+              .style("top", (d3.event.pageY - 28) + "px");
+
+        chart.tooltip.append("p")
+            .attr("class", "tooltip_text")
+            .html("<b>" + d.race + "</b>" + "students from " + "<b>" + d.state_name + "</b><br />" + 
+              "scored a difference of " + format(getValueOfData(d)) + " points in " + "<b>" + selectedButton() + "</b>")
+      })        
+      .on("mouseout", function(d) {       
+          chart.tooltip.html("")
+              .transition()        
+              .duration(500)      
+              .style("opacity", 0)
+      });
+
       //return chart.y(filterData(d)); 
   
 //  points.exit().remove();
