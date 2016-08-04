@@ -209,7 +209,7 @@ Choropleth.prototype.update = function () {
     if (d.properties['poverty'] >= .156) {return "3px"};
   })
   .delay(function(d, i) { 
-    return i*10;
+    return i*14;
   });
 
 //UPDATING LEGEND

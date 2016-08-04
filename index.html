@@ -29,7 +29,7 @@
           </div> 
         </div>
         <div class="row">
-          <div class="col-md-4 col-sm-4 col-xs-4">
+          <div class="col-md-3 col-sm-3 col-xs-3">
             <!--  <div class="controls section">
                 <div class="btn-toolbar">
                   <label for="categories" class="category-label">Categories: </label>
@@ -41,16 +41,21 @@
                 </div>
               </div> -->
           </div>
-          <div class="col-md-4 col-sm-4 col-xs-4">
+          <div class="col-md-6 col-sm-6 col-xs-6">
             <div class="controls section">
-            <label for="categories" class="category-label">Select one: </label>
-            <div class="btn-group" role="group" aria-label="Sort" id="categories">
-              <button type="button" id="sort_math" value="m_diff">Math Differences</button>
-              <button type="button" id="sort_read" value="r_diff">Reading Differences</button>
+              <label for="categories" class="category-label">Select one: 
+              </label>
+            <div id="tab" class="btn-group" data-toggle="buttons">
+              <label class="btn btn-info active" data-toggle="tab">
+                <input type="radio" id="sort_math" value="m_diff" autocomplete="off" checked="" data-toggle="tab">Math Differences
+              </label>              
+              <label class="btn btn-info" data-toggle="tab">
+                <input type="radio" id="sort_read" value="r_diff" autocomplete="off" data-toggle="tab">Reading Differences
+              </label>
             </div>
             </div>
           </div>
-          <div class="col-md-4 col-sm-4 col-xs-4">
+          <div class="col-md-3 col-sm-3 col-xs-3">
           </div>
         </div> 
       </div>
