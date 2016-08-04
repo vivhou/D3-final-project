@@ -54,8 +54,6 @@ var projection = d3.geoEquirectangular()
 
 var path = d3.geoPath()
   .projection(projection);
-
-
    
 
   queue()
@@ -202,7 +200,7 @@ Choropleth.prototype.update = function () {
   })
   .style('stroke', function(d) {
     if (d.properties['poverty'] >= .156) {
-      return "#697fd7"};
+      return "#545454"};
   })
 
   .style('stroke-width', function(d) {
@@ -482,8 +480,54 @@ function getValueOfData(d) {
       })
       .style("stroke", "#697fd7")
       .style("stroke-width", "2")
+
+        //LEGEND
+
+           
+      var colors = [ 
+        { race: "White", color: "#fff" },
+        { race: "Hispanic", color: "#323299" },
+        { race: "Black", color: "#ffa500" }
+      ]
+
+      chart.legendScatter = d3.select('#scatter_legend').append('svg')
+      .attr('width', '100%')
+      .attr('height', '80');
+
+      chart.g = chart.legendScatter.append("g")
+      .attr("class", "legend")
+      .attr('transform', 'translate(' + -50 + ',' + 30 + ')');    
+      
+    
+    chart.g.selectAll('rect')
+      .data(colors)
+      .enter()
+      .append("rect")
+      .attr("x", width - 65)
+      .attr("y", function(d, i){ return i *  20;})
+      .attr("width", 10)
+      .attr("height", 10)
+      .style("fill", function(d) { 
+        return d.color;
+      })
+      .style("opacity", 0.7)
+      
+    chart.g.selectAll('text')
+      .data(colors)
+      .enter()
+      .append("text")
+    .attr("x", width - 52)
+      .attr("y", function(d, i){ return i *  20 + 9;})
+    .text(function(d) {
+         return d.race;
+      })
+    .style("fill", "#000");
+
+
         chart.update();
-   
+  
+
+
   }
 
 

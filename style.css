@@ -11,15 +11,11 @@
       color: #696969;
     }
 
-    #legend {  
-      margin-left: 10px;
-      margin-top: 10px;
-    }
-
     .note {
-      color: #697fd7;
+      color: #545454;
       font-style: italic;
       font-size: 10px;
+      margin-top: 10px;
 
     }
 
@@ -143,6 +139,10 @@
 
     }
 
+    .category-label {
+      margin-right: 5px;
+    }
+
     .axis path,
     .axis line {
       fill: none;
@@ -172,10 +172,11 @@
     padding-bottom: 100%; /* aspect ratio */
     vertical-align: top;
     overflow: hidden;
-}
-.svg-content-responsive {
+    }
+    .svg-content-responsive {
     display: inline-block;
     position: absolute;
     top: 10px;
     left: 0;
-}
+    }
+
