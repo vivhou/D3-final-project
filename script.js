@@ -1,5 +1,7 @@
 //map is forked from a combination of https://github.com/githamm/us-state-squares and https://github.com/lvonlanthen/data-map-d3
 
+
+
 var scatterData = [];
 
 var options= {
@@ -76,6 +78,32 @@ var path = d3.geoPath()
       scatterplot.update(results[1]);
       });*/
     });
+
+function switchStep(newStep)
+{
+  d3.selectAll(".step-link").classed("active", false);
+  d3.select("#" + newStep).classed("active", true);
+}
+
+function switchAnnotation(newStep)
+{
+  d3.selectAll(".annotation-step")
+    .style("display", "none")
+    .style("opacity", 0.0);
+
+  d3.select("#" + newStep + "-annotation")
+    .style("display", "block")
+    .transition().delay(300).duration(500)
+      .style("opacity", 1);
+}
+
+d3.selectAll("a.btn").on("click", function(d) {
+  var clickedStep = d3.select(this).attr("id");
+  switchStep(clickedStep);
+  switchAnnotation(clickedStep);
+  return false;
+});
+
 
 
 function Choropleth(states, data) {
@@ -170,6 +198,9 @@ function Choropleth(states, data) {
       .attr("class", "caption")
       .attr("y", -6)
       .attr("x", 100)
+
+  chart.legendWidth = d3.select('#chart1').node().getBoundingClientRect().width/2 - margin.right - margin.left;
+
 //TOOLTIP
 
   chart.tooltip = d3.select("body").append("div")   
@@ -213,7 +244,6 @@ Choropleth.prototype.update = function () {
 
 //UPDATING LEGEND
 
-  chart.legendWidth = d3.select('#chart1').node().getBoundingClientRect().width/2 - margin.right - margin.left;
 
 // We determine the domain of the quantize scale which will be used as
   // tick values. We cannot directly use the scale via quantize.scale()
@@ -256,7 +286,10 @@ Choropleth.prototype.update = function () {
         return quantize.invertExtent(d);
       }))
       .attr("height", 8)
-      .attr("x", function(d) { return chart.legendX(d[0]); })
+      .attr("x", function(d) 
+{               console.log(chart.legendX(d[0])-chart.legendX(d[1]));
+ 
+        return chart.legendX(d[0]); })
       .attr("width", function(d) { return chart.legendX(d[1]) - chart.legendX(d[0]); })
       .attr('class', function(d, i) {
         return quantize.range()[i];
@@ -398,7 +431,7 @@ function circleFill (d) {
 
     var formatThousand = d3.format(".2s");
     var formatThousand_x = function(d) { if (d > 0) {
-      return formatThousand(d/1000); }
+      return "+$" + formatThousand(d/1000) + "k"; }
     };
 
     var formatPoints = d3.format("");
