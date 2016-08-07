@@ -312,11 +312,11 @@ Choropleth.prototype.update = function () {
               format(getValueOfData(d)) + "%" + "</b>");
   chart.map
        // var id = chart.states.features[i].properties.abbr
-        var id = scatterData[i].state
-        console.log(scatterData[i].state)
+        var id = scatterData[i].state_name
+        console.log(scatterData[i].state_name)
         d3.selectAll(".path")
             .style("opacity", function(d) {
-             return d.state == id ? 1 : 0.2;
+             return d.state_name == id ? 1 : 0.2;
             });
 
       })        
@@ -378,7 +378,7 @@ function circleFill (d) {
     // SCALES
 
     chart.x = d3.scaleLinear()
-      .domain([0, d3.max(chart.data, function (d) { return d.poverty; })]) 
+      .domain([0, d3.max(chart.data, function (d) { return d.pp_diff * (-1); })]) 
       .range([0, width])
       .nice();
 
@@ -396,9 +396,9 @@ function circleFill (d) {
 
     // AXES
 
-    var formatPercentage = d3.format(".1%");
-    var formatPercentage_x = function(d) { if (d > 0) {
-      return formatPercentage(d); }
+    var formatThousand = d3.format(".2s");
+    var formatThousand_x = function(d) { if (d > 0) {
+      return formatThousand(d/1000); }
     };
 
     var formatPoints = d3.format("");
@@ -408,7 +408,7 @@ function circleFill (d) {
         .ticks(10)
         //.orient("top")
         .tickSize(-height) 
-        .tickFormat(formatPercentage_x);
+        .tickFormat(formatThousand_x);
 
 
 
@@ -437,7 +437,7 @@ function circleFill (d) {
         .attr("transform", "translate(" + (width /2) + " ," + (height/18) + ")")
         .style("fill", "black")
         .attr("text-anchor", "middle")
-        .text("Poverty Rate");
+        .text("Per-Pupil Expense Difference");
 
 
 
@@ -468,20 +468,20 @@ function circleFill (d) {
 
   for (var i = 0; i < chart.data.length; i++) {
     scatterData.push({state: chart.data[i].state,
-       state: chart.data[i].state_name,
-       poverty: chart.data[i].poverty,
+       state_name: chart.data[i].state_name,
+       pp_diff: chart.data[i].pp_diff,
        race: "white",
        m_diff: chart.data[i].m_diff_white,
        r_diff: chart.data[i].r_diff_white})
     scatterData.push({state: chart.data[i].state,
-       state: chart.data[i].state_name,
-       poverty: chart.data[i].poverty,
+       state_name: chart.data[i].state_name,
+       pp_diff: chart.data[i].pp_diff,
        race: "black",
        m_diff: chart.data[i].m_diff_black,
        r_diff: chart.data[i].r_diff_black})
     scatterData.push({state: chart.data[i].state,
-       state: chart.data[i].state_name,
-       poverty: chart.data[i].poverty,
+       state_name: chart.data[i].state_name,
+       pp_diff: chart.data[i].pp_diff,
        race: "his",
        m_diff: chart.data[i].m_diff_his,
        r_diff: chart.data[i].r_diff_his})
@@ -499,7 +499,7 @@ function circleFill (d) {
       })
       .attr('class', 'point path')
       .attr('r', 7)
-      .attr('cx', function (d) { return chart.x(d.poverty); })
+      .attr('cx', function (d) { return chart.x(d.pp_diff * (-1)); })
       .attr('cy', function (d) { 
         if (options.filtered === 'select_math') {
           return chart.y(d.m_diff)
@@ -597,7 +597,7 @@ Scatterplot.prototype.update = function() {
     .delay(function(d, i) {
       return i / scatterData.length * 500;  // Dynamic delay (i.e. each item delays a little longer)
       })
-    .attr('cx', function (d) { return chart.x(d.poverty); })
+    .attr('cx', function (d) { return chart.x(d.pp_diff * (-1)); })
     .attr('cy', function (d) { if (options.filtered === 'select_math') {
       return chart.y(d.m_diff);
       } else { return chart.y(d.r_diff); } 
