@@ -64,12 +64,54 @@ var path = d3.geoPath()
     .awaitAll(function(error, results) {
       if (error) { throw error; }
 
+        for (var i = 0; i < results[1].length; i++) {
+      var state = results[1][i].state;
+      var math_diff = results[1][i].math_diff;
+      var read_diff = results[1][i].read_diff;
+      var pp_diff = results[1][i].pp_diff;
+      var poverty = results[1][i].poverty;
+      var m_diff_white = results[1][i].m_diff_white;
+      var m_diff_black = results[1][i].m_diff_black;
+      var m_diff_his = results[1][i].m_diff_his;
+      var r_diff_white = results[1][i].r_diff_white;
+      var r_diff_black = results[1][i].r_diff_black;
+      var r_diff_his = results[1][i].r_diff_his;
+      var state_name = results[1][i].state_name;
+      var pp_expense_11 = results[1][i].pp_expense_11;
+      var m_all_11 = results[1][i].m_all_11;
+
+
+
+      for (var j = 0; j < results[0].features.length; j++) {
+
+        if (state == results[0].features[j].properties.abbr) {
+          results[0].features[j].properties.math_diff = math_diff;
+          results[0].features[j].properties.read_diff = read_diff;
+          results[0].features[j].properties.pp_diff = pp_diff;
+          results[0].features[j].properties.poverty = poverty;
+          results[0].features[j].properties.m_diff_white = m_diff_white;
+          results[0].features[j].properties.m_diff_black = m_diff_black;
+          results[0].features[j].properties.m_diff_his = m_diff_his;
+          results[0].features[j].properties.r_diff_white = r_diff_white;
+          results[0].features[j].properties.r_diff_black = r_diff_black;
+          results[0].features[j].properties.r_diff_his = r_diff_his;
+          results[0].features[j].properties.state_name = state_name;
+
+          break;
+        }
+      }
+    }
+
     
-    choropleth = new Choropleth(results[0],results[1]);
+    choropleth = new Choropleth(results[0]);
     choropleth.update();
 
     scatterplot = new Scatterplot(results[1]);
     scatterplot.update();
+
+    firstScatterplot = new FirstScatterplot(results[1]);
+   
+    secondScatterplot = new SecondScatterplot(results[1]);
 
 
    /* d3.select('#categories').on('change', function () {
@@ -79,13 +121,17 @@ var path = d3.geoPath()
       });*/
     });
 
+//STEPPER FUNCTIONS
+
 function switchStep(newStep)
 {
   d3.selectAll(".step-link").classed("active", false);
   d3.select("#" + newStep).classed("active", true);
 }
 
-function switchAnnotation(newStep)
+function switchAnnotation(newStep) 
+
+
 {
   d3.selectAll(".annotation-step")
     .style("display", "none")
@@ -104,12 +150,272 @@ d3.selectAll("a.btn").on("click", function(d) {
   return false;
 });
 
+//STEP 1
+
+ function FirstScatterplot(data) {
+    var chart = this;
+
+    chart.data = data
+
+    chart.svg = d3.select("#chart1")
+      .append("div")
+      .classed("svg-container", true)
+      .append("svg")
+      .attr("preserveAspectRatio", "xMinYMin meet")
+      .attr("viewBox", "0 -10 600 500")
+      .classed("svg-content-responsive", true)
+     // .attr('width', width + margin.left + margin.right)
+     // .attr('height', height + margin.top + margin.bottom)
+      .append('g')
+      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+ 
+    // SCALES
+    chart.x = d3.scaleLinear()
+      .domain([20000, d3.max(chart.data, function (d) { return parseInt(d.pp_expense_11); })]) 
+      .range([0, width])
+      .nice();
+
+    var y0 = d3.min(chart.data, function (d) {
+      return d.m_all_11; })
+    var y1 = d3.max(chart.data, function (d) {
+      return d.m_all_11; })
+
+    chart.y = d3.scaleLinear()
+     // .domain(d3.extent(data, function (d) { return d.Math_proficient/100; })) 
+      .domain([y0, y1])
+      .range([height, 0])
+      .nice();
+
+    // AXES
+
+    var formatThousand = d3.format(".2s");
+    var formatThousand_x = function(d) { if (d > 0) {
+      return "$" + formatThousand(d/1000) + "k"; }
+    };
+
+    var formatPoints = d3.format("");
+
+    chart.xAxis = d3.axisBottom()
+        .scale(chart.x)
+        .ticks(10)
+        //.orient("top")
+        .tickSize(-height) 
+        .tickFormat(formatThousand_x);
 
 
-function Choropleth(states, data) {
+
+
+    chart.yAxis = d3.axisLeft()
+        .scale(chart.y)
+      //  .ticks(16)
+  //      .orient("left")
+     //   .outerTickSize(0)
+        .tickSize(-width, 0, 0) 
+        .tickFormat(formatPoints);
+
+
+  //AXES
+
+    var gx = chart.svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + (height) + ")")
+        .call(chart.xAxis) 
+    gx.selectAll("g").filter(function(d) { return d;}) //need to use filter since true values do not return 0
+        .classed("no-minor", true);
+    gx.selectAll("text")
+       .attr("transform", "translate(0," + (height*.005) + ")")  
+    gx.append("text")
+        .attr('class', 'labels')
+        .attr("transform", "translate(" + (width /2) + " ," + (height/18) + ")")
+        .style("fill", "black")
+        .attr("text-anchor", "middle")
+        .text("Per-Pupil Expenses");
+
+
+
+    var gy= chart.svg.append("g")
+        .attr("class", "y axis")
+     //   .attr("transform", "translate(" + ",0)")
+        .call(chart.yAxis)
+    gy.selectAll("g").filter(function(d) { return d;})
+        .classed("no-minor", true);
+    gy.selectAll("text") 
+        .attr("x", 18)
+        .attr("dy", -3)
+    gy.append("text")
+        .attr('class', 'labels')
+        .attr("transform", "rotate(-90)")
+        .style("fill", "black") 
+        .attr("y", - (height*.03))
+        .attr("x", - (width/3))
+        .attr("dy", ".71em")
+        .style("text-anchor", "middle")
+        .text("Math Scores");
+ 
+
+    chart.points = chart.svg.selectAll('.point') //point is used instead of circles, in case different shapes are used
+      .data(data);
+
+    chart.points.enter().append('circle')
+      .transition()
+      .duration(1000)
+      .delay(function(d, i) {
+      return i / scatterData.length * 500;  // Dynamic delay (i.e. each item delays a little longer)
+      })
+      .attr('class', 'point path')
+      .attr('r', function(d) { return d.poverty * 120})
+      .attr('cx', function (d) { return chart.x(d.pp_expense_11); })
+      .attr('cy', function (d) { return chart.y(d.m_all_11); })
+      .style("fill", "#a5a5a5")
+      .style("stroke", "#697fd7")
+      .style("stroke-width", "3")
+
+      function rescale() {
+          var chart = this;
+            chart.x.domain([0, d3.max(chart.data, function (d) { return parseInt(d.pp_expense_11); })])  // change scale to 0, to between 10 and 100
+           vis.select(".x .axis")
+                    .transition().duration(1500).ease("sin-in-out")  // https://github.com/mbostock/d3/wiki/Transitions#wiki-d3_ease
+                    .call(chart.xAxis);  
+            vis.select(".labels")
+                .text("Math Scores");
+                
+      }
+      rescale();
+
+  }
+
+  
+
+
+function SecondScatterplot(data) {
+    var chart = this;
+
+    chart.data = data
+
+    chart.svg = d3.select("#chart2")
+      .append("div")
+      .classed("svg-container", true)
+      .append("svg")
+      .attr("preserveAspectRatio", "xMinYMin meet")
+      .attr("viewBox", "0 -10 600 500")
+      .classed("svg-content-responsive", true)
+     // .attr('width', width + margin.left + margin.right)
+     // .attr('height', height + margin.top + margin.bottom)
+      .append('g')
+      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+ 
+    // SCALES
+    chart.x = d3.scaleLinear()
+      .domain([0, d3.max(chart.data, function (d) { return parseInt(d.pp_expense_11); })]) 
+      .range([0, width])
+      .nice();
+
+    var y0 = d3.min(chart.data, function (d) {
+      return d.m_all_11; })
+    var y1 = d3.max(chart.data, function (d) {
+      return d.m_all_11; })
+
+    chart.y = d3.scaleLinear()
+     // .domain(d3.extent(data, function (d) { return d.Math_proficient/100; })) 
+      .domain([y0, y1])
+      .range([height, 0])
+      .nice();
+
+    // AXES
+
+    var formatThousand = d3.format(".2s");
+    var formatThousand_x = function(d) { if (d > 0) {
+      return "$" + formatThousand(d/1000) + "k"; }
+    };
+
+    var formatPoints = d3.format("");
+
+    chart.xAxis = d3.axisBottom()
+        .scale(chart.x)
+        .ticks(10)
+        //.orient("top")
+        .tickSize(-height) 
+        .tickFormat(formatThousand_x);
+
+
+
+
+    chart.yAxis = d3.axisLeft()
+        .scale(chart.y)
+      //  .ticks(16)
+  //      .orient("left")
+     //   .outerTickSize(0)
+        .tickSize(-width, 0, 0) 
+        .tickFormat(formatPoints);
+
+
+  //AXES
+
+    var gx = chart.svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + (height) + ")")
+        .call(chart.xAxis) 
+    gx.selectAll("g").filter(function(d) { return d;}) //need to use filter since true values do not return 0
+        .classed("no-minor", true);
+    gx.selectAll("text")
+       .attr("transform", "translate(0," + (height*.005) + ")")  
+    gx.append("text")
+        .attr('class', 'labels')
+        .attr("transform", "translate(" + (width /2) + " ," + (height/18) + ")")
+        .style("fill", "black")
+        .attr("text-anchor", "middle")
+        .text("Per-Pupil Expenses");
+
+
+
+    var gy= chart.svg.append("g")
+        .attr("class", "y axis")
+     //   .attr("transform", "translate(" + ",0)")
+        .call(chart.yAxis)
+    gy.selectAll("g").filter(function(d) { return d;})
+        .classed("no-minor", true);
+    gy.selectAll("text") 
+        .attr("x", 18)
+        .attr("dy", -3)
+    gy.append("text")
+        .attr('class', 'labels')
+        .attr("transform", "rotate(-90)")
+        .style("fill", "black") 
+        .attr("y", - (height*.03))
+        .attr("x", - (width/3))
+        .attr("dy", ".71em")
+        .style("text-anchor", "middle")
+        .text("Math Scores");
+ 
+
+    chart.points = chart.svg.selectAll('.point') //point is used instead of circles, in case different shapes are used
+      .data(data);
+
+    chart.points.enter().append('circle')
+      .transition()
+      .duration(1000)
+      .delay(function(d, i) {
+      return i / scatterData.length * 500;  // Dynamic delay (i.e. each item delays a little longer)
+      })
+      .attr('class', 'point path')
+      .attr('r', function(d) { return d.poverty * 120})
+      .attr('cx', function (d) { return chart.x(d.pp_expense_11); })
+      .attr('cy', function (d) { return chart.y(d.m_all_11); })
+      .style("fill", "#a5a5a5")
+      .style("stroke", "#697fd7")
+      .style("stroke-width", "3")
+
+
+  }
+
+
+
+function Choropleth(states) {
   var chart = this;
 
-  chart.svg = d3.select("#chart1")
+  chart.svg = d3.select("#chart3")
       .append("div")
       .classed("svg-container", true)
       .append("svg")
@@ -123,43 +429,9 @@ function Choropleth(states, data) {
   chart.mapFeatures = chart.svg.append('g')
   .attr('class', 'features YlGnBu')
 
-    for (var i = 0; i < data.length; i++) {
-      var state = data[i].state;
-      var math_diff = data[i].math_diff;
-      var read_diff = data[i].read_diff;
-      var pp_diff = data[i].pp_diff;
-      var poverty = data[i].poverty;
-      var m_diff_white = data[i].m_diff_white;
-      var m_diff_black = data[i].m_diff_black;
-      var m_diff_his = data[i].m_diff_his;
-      var r_diff_white = data[i].r_diff_white;
-      var r_diff_black = data[i].r_diff_black;
-      var r_diff_his = data[i].r_diff_his;
-      var state_name = data[i].state_name;
+  
 
-
-
-      for (var j = 0; j < states.features.length; j++) {
-
-        if (state == states.features[j].properties.abbr) {
-          states.features[j].properties.math_diff = math_diff;
-          states.features[j].properties.read_diff = read_diff;
-          states.features[j].properties.pp_diff = pp_diff;
-          states.features[j].properties.poverty = poverty;
-          states.features[j].properties.m_diff_white = m_diff_white;
-          states.features[j].properties.m_diff_black = m_diff_black;
-          states.features[j].properties.m_diff_his = m_diff_his;
-          states.features[j].properties.r_diff_white = r_diff_white;
-          states.features[j].properties.r_diff_black = r_diff_black;
-          states.features[j].properties.r_diff_his = r_diff_his;
-          states.features[j].properties.state_name = state_name;
-
-          break;
-        }
-      }
-    }
-
-  chart.svg = d3.select("#chart1")
+  chart.svg = d3.select("#chart3")
   chart.map = chart.mapFeatures.selectAll('path')
     .data(states.features)
     .enter().append('path')
@@ -199,7 +471,7 @@ function Choropleth(states, data) {
       .attr("y", -6)
       .attr("x", 100)
 
-  chart.legendWidth = d3.select('#chart1').node().getBoundingClientRect().width/2 - margin.right - margin.left;
+  chart.legendWidth = d3.select('#chart3').node().getBoundingClientRect().width/2 - margin.right - margin.left;
 
 //TOOLTIP
 
@@ -345,10 +617,13 @@ Choropleth.prototype.update = function () {
               format(getValueOfData(d)) + "%" + "</b>");
   chart.map
        // var id = chart.states.features[i].properties.abbr
-        var id = scatterData[i].state_name
+        var id = d.properties.state_name
         console.log(scatterData[i].state_name)
         d3.selectAll(".path")
             .style("opacity", function(d) {
+             return d.state_name == id ? 1 : 0.2;
+            })
+            .style("stroke", function(d) {
              return d.state_name == id ? 1 : 0.2;
             });
 
@@ -395,7 +670,7 @@ function circleFill (d) {
 
     chart.data = data
 
-    chart.svg = d3.select("#chart2")
+    chart.svg = d3.select("#chart4")
       .append("div")
       .classed("svg-container", true)
       .append("svg")

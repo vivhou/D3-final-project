@@ -1,8 +1,12 @@
  #vis-container {
   position: relative;
   width: 980px;
-  height: 700px;
+  height: 600px;
   margin-top: 10px;
+}
+
+#step1 {
+  margin-left: 25px;
 }
 /*
  All the .annotation-step divs are inside
@@ -68,7 +72,7 @@
      h2 {
       font-family: 'Quicksand', sans-serif;
       text-align: center;
-      font-size: 14px;
+      font-size: 18px;
       color: #697fd7;
       margin-top: 90px;
       font-weight: bold;
@@ -93,6 +97,8 @@
     .axis text {
       font-size: 9px;
     }
+
+    
 
     .axis .labels {
       font-size: 12px;
@@ -230,6 +236,12 @@
       stroke: #45cab2;
       stroke-dasharray: 2,2;
       opacity: 0.5;
+    }
+
+    .axis .no-minor line {
+      stroke: #45cab2;
+      stroke-dasharray: 2,2;
+      opacity: 0;
     }
 
 

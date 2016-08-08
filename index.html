@@ -14,36 +14,55 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <div class="header section">
+   <h1>The Education Landscape: 2005 vs. 2011
+   </h1>
+      <p> The graph below shows how fourth grade national proficiency levels and national test scores changed in 2011 compared to 2005.
+      </p>
+  </div>
 <!--Step navigation UI -->
 <div id = "vis-nav">
   <a href="#" id="step1" class="btn btn-info active"> Step1</a>
-  <a href="#" id="step2" class="btn btn-info">Step2</a>
+  <a href="#" id="step2" onclick="FirstScatterplot();" class="btn btn-info">Step2</a>
   <a href="#" id="step3" class="btn btn-info">Step3</a>
 </div>
 <!-- Container for visualization -->
 <div id="vis-container">
   <div id="annotation-steps">
     <div class="annotation-step" id="step1-annotation" style="display:block;">
-      <div class="annotation" id="step1-left-annotation">
-        <h1>Left Annotation Title </h1>
-        <p>Sample text</p>
-      </div>
-      <div class="annotation" id="step1-right-annotation">
-      </div>
+        <div class="container">
+          <div class="row">
+            <div class="col-md-4 col-sm-4 col-xs-4">
+              <h2>Title</h2>
+              <p>Text</p>
+              <a href="#" id="rescale" onclick="(FirstScatterplot()).rescale();" class="btn btn-info">Rescale</a>
+            </div>
+            <div class="col-md-8 col-sm-8 col-xs-8">
+              <div id="chart1">
+              </div>
+            </div>
+          </div>
+        </div>
     </div>
     <div class="annotation-step" id="step2-annotation">
-      <div class="annotation" id="step2-center-annotation">
-        <h1>Left Annotation Title </h1>
-        <p>Sample text</p>
+      <div class="container">
+          <div class="row">
+            <div class="col-md-4 col-sm-4 col-xs-4">
+              <h2>Title</h2>
+              <p>Text</p>
+            </div>
+            <div class="col-md-8 col-sm-8 col-xs-8">
+              <div id="chart2">
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="annotation-step" id="step3-annotation">        
       <div class="container">
         <div class="row">
           <div class="col-md-12 col-sm-12 col-xs-12">
-            <div class="header section">
-              <h1>The Education Landscape: 2005 vs. 2011</h1>
-              <p> The graph below shows how fourth grade national proficiency levels and national test scores changed in 2011 compared to 2005.</p>
               <div class="row">
                 <div class="col-md-2 col-sm-2 col-xs-2">
                 </div>
@@ -81,13 +100,12 @@
                 </div>
                 
               </div> 
-            </div>
           </div>
         </div>
         <div class="row">
           <div class="main section">
             <div class="col-md-6 col-sm-6 col-xs-6">
-              <div id="chart1">
+              <div id="chart3">
                 <div class="note">*The top ten states with the highest average <br /> poverty rate (2005-2011) are bordered in gray.
                 </div> 
                 <div id="legend">
@@ -97,7 +115,7 @@
             <div class="col-md-6 col-sm-6 col-xs-6">
               <div id="scatter_legend">
               </div>
-              <div id="chart2">
+              <div id="chart4">
               </div>
             </div>
           </div>
