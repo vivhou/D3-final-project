@@ -116,7 +116,7 @@ var path = d3.geoPath()
     scatterplot.update();
 
     firstScatterplot = new FirstScatterplot(results[1]);
-    firstScatterplot.update();
+    
    
 
    /* d3.select('#categories').on('change', function () {
@@ -156,24 +156,35 @@ d3.selectAll("a.btn").on("click", function(d) {
   function switchAnnotation(clickedStep) {
     if (clickedStep === 'step3') {
       console.log('1')
-    d3.selectAll(".first-second-step")
-    .style("display", "none")
-    .style("opacity", 0.0);
-
-  d3.select("#step-3-annotation")
-    .style("display", "block")
-    .transition().delay(300).duration(500)
-      .style("opacity", 1);
+      d3.selectAll(".first-step, .second-step")
+        .style("display", "none")
+        .style("opacity", 0.0);
+      d3.select("#step3-annotation")
+        .style("display", "block")
+        .transition().delay(300).duration(500)
+        .style("opacity", 1);
     }
-    else {
-    d3.selectAll(".third-step")
-    .style("display", "none")
-    .style("opacity", 0.0);
+    else if (clickedStep === 'step2') {
+      d3.selectAll(".third-step")
+        .style("display", "none")
+        .style("opacity", 0.0);
+      d3.select("#step2-annotation")
+        .style("display", "block")
+      .transition().delay(300).duration(500)
+        .style("opacity", 1); 
+        firstScatterplot.update();
+    }
 
-  d3.select("#step-1-2-annotation")
-    .style("display", "block")
-    .transition().delay(300).duration(500)
-      .style("opacity", 1); }
+    else if (clickedStep === 'step1') {
+      d3.selectAll(".third-step, .second-step")
+        .style("display", "none")
+        .style("opacity", 0.0);
+      d3.select("#step1-annotation")
+        .style("display", "block")
+      .transition().delay(300).duration(500)
+        .style("opacity", 1);
+
+    }
   }
   switchAnnotation(clickedStep);
   
@@ -181,7 +192,7 @@ d3.selectAll("a.btn").on("click", function(d) {
 
 //STEP 1
 
-function FirstScatterplot(data) {
+FirstScatterplot = function (data) {
     var chart = this;
 
     chart.data = data
@@ -301,7 +312,7 @@ function FirstScatterplot(data) {
       .style("stroke-width", "3")
 
 
-  }
+}
 
   
 
@@ -309,21 +320,26 @@ function FirstScatterplot(data) {
 
 FirstScatterplot.prototype.update =function (data) {
     var chart = this;
-
+    
     x1 = d3.max(chart.data, function (d) { return parseInt(d.pp_expense_11); })
  
     chart.x.domain([0, x1])  // change scale to 0, to between 10 and 100
-    chart.svg.select("x axis").transition().duration(10).call(chart.yAxis)
+    chart.svg.selectAll(".axis").filter(".x")
+      .transition().duration(1000)
+      .call(chart.xAxis);
+    chart.svg.selectAll("g").filter(function(d) { return d;})
+        .classed("no-minor", true);
+
    /*     .transition().duration(1500).ease("sin-in-out")  // https://github.com/mbostock/d3/wiki/Transitions#wiki-d3_ease
                     .call(chart.xAxis);  
             chart.svg.select(".labels")
                 .text("Math Scores");
                 
     */ 
+  //  chart.points = chart.svg.select('.point') //point is used instead of circles, in case different shapes are used
+  //    .data(data);
 
- /*   chart.points = chart.svg.selectAll('.point') //point is used instead of circles, in case different shapes are used
-      .data(data);
-
+    chart.points.exit().remove();
     chart.points.enter().append('circle')
       .transition()
       .duration(1000)
@@ -331,12 +347,12 @@ FirstScatterplot.prototype.update =function (data) {
       return i / scatterData.length * 500;  // Dynamic delay (i.e. each item delays a little longer)
       })
       .attr('class', 'point path')
-      .attr('r', function(d) { return d.poverty * 120})
+      .attr('r', function(d) { return d.pp_expense_11 > 20000 ? 0: d.poverty * 120})
       .attr('cx', function (d) { return chart.x(d.pp_expense_11); })
       .attr('cy', function (d) { return chart.y(d.m_all_11); })
       .style("fill", "#a5a5a5")
       .style("stroke", "#697fd7")
-      .style("stroke-width", "3")*/
+      .style("stroke-width", "3")
 
 
 }

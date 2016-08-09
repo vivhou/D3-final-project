@@ -32,9 +32,9 @@
   background-color: #696969;
 } 
 
-/* By default, all annotation-steps are hidden. */
+/* By default, third-steps is hidden. */
 
-.annotation-step {
+.hide-step {
   position: absolute;
   display: none;
 }
@@ -42,24 +42,6 @@
 .annotation {
   position: absolute;
 }
-
-#step1-left-annotation {
-  left: 30px;
-  top: 120px;
-  width: 200px;
-}
-#step1-right-annotation {
-  left: 770px;
-  top: 120px;
-  width: 200px;
-}
-
-#step2-center-annotation {
-  left: 290px;
-  top: 40px;
-  width: 400px;
-  text-align: center;
-} 
 
 
 
