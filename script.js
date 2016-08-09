@@ -9,7 +9,13 @@ var options= {
 };
 
 
-  // EVENT HANDLERS
+  // STEP 2 EVENT HANDLER
+  d3.select('#step2').on('click', function () {
+    firstScatterplot.update();
+  }); 
+
+
+  //STEP 3 EVENT HANDLERS
 d3.select('#sort_math').on('click', function () {
     //if (options.filtered === 'select_math') {
     //  options.filtered = true;
@@ -110,9 +116,8 @@ var path = d3.geoPath()
     scatterplot.update();
 
     firstScatterplot = new FirstScatterplot(results[1]);
+    firstScatterplot.update();
    
-    secondScatterplot = new SecondScatterplot(results[1]);
-
 
    /* d3.select('#categories').on('change', function () {
       currentKey = d3.select(this).property('value');
@@ -129,30 +134,54 @@ function switchStep(newStep)
   d3.select("#" + newStep).classed("active", true);
 }
 
-function switchAnnotation(newStep) 
+/*function switchAnnotation(newStep) 
 
 
 {
-  d3.selectAll(".annotation-step")
+  d3.select(".second-step")
     .style("display", "none")
     .style("opacity", 0.0);
 
-  d3.select("#" + newStep + "-annotation")
+  d3.select(".third-step")
     .style("display", "block")
     .transition().delay(300).duration(500)
       .style("opacity", 1);
 }
+*/
 
 d3.selectAll("a.btn").on("click", function(d) {
   var clickedStep = d3.select(this).attr("id");
   switchStep(clickedStep);
+  console.log(clickedStep)
+  function switchAnnotation(clickedStep) {
+    if (clickedStep === 'step3') {
+      console.log('1')
+    d3.selectAll(".first-second-step")
+    .style("display", "none")
+    .style("opacity", 0.0);
+
+  d3.select("#step-3-annotation")
+    .style("display", "block")
+    .transition().delay(300).duration(500)
+      .style("opacity", 1);
+    }
+    else {
+    d3.selectAll(".third-step")
+    .style("display", "none")
+    .style("opacity", 0.0);
+
+  d3.select("#step-1-2-annotation")
+    .style("display", "block")
+    .transition().delay(300).duration(500)
+      .style("opacity", 1); }
+  }
   switchAnnotation(clickedStep);
-  return false;
+  
 });
 
 //STEP 1
 
- function FirstScatterplot(data) {
+function FirstScatterplot(data) {
     var chart = this;
 
     chart.data = data
@@ -271,126 +300,28 @@ d3.selectAll("a.btn").on("click", function(d) {
       .style("stroke", "#697fd7")
       .style("stroke-width", "3")
 
-      function rescale() {
-          var chart = this;
-            chart.x.domain([0, d3.max(chart.data, function (d) { return parseInt(d.pp_expense_11); })])  // change scale to 0, to between 10 and 100
-           vis.select(".x .axis")
-                    .transition().duration(1500).ease("sin-in-out")  // https://github.com/mbostock/d3/wiki/Transitions#wiki-d3_ease
-                    .call(chart.xAxis);  
-            vis.select(".labels")
-                .text("Math Scores");
-                
-      }
-      rescale();
 
   }
 
   
 
+//STEP 2
 
-function SecondScatterplot(data) {
+FirstScatterplot.prototype.update =function (data) {
     var chart = this;
 
-    chart.data = data
-
-    chart.svg = d3.select("#chart2")
-      .append("div")
-      .classed("svg-container", true)
-      .append("svg")
-      .attr("preserveAspectRatio", "xMinYMin meet")
-      .attr("viewBox", "0 -10 600 500")
-      .classed("svg-content-responsive", true)
-     // .attr('width', width + margin.left + margin.right)
-     // .attr('height', height + margin.top + margin.bottom)
-      .append('g')
-      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
-
+    x1 = d3.max(chart.data, function (d) { return parseInt(d.pp_expense_11); })
  
-    // SCALES
-    chart.x = d3.scaleLinear()
-      .domain([0, d3.max(chart.data, function (d) { return parseInt(d.pp_expense_11); })]) 
-      .range([0, width])
-      .nice();
+    chart.x.domain([0, x1])  // change scale to 0, to between 10 and 100
+    chart.svg.select("x axis").transition().duration(10).call(chart.yAxis)
+   /*     .transition().duration(1500).ease("sin-in-out")  // https://github.com/mbostock/d3/wiki/Transitions#wiki-d3_ease
+                    .call(chart.xAxis);  
+            chart.svg.select(".labels")
+                .text("Math Scores");
+                
+    */ 
 
-    var y0 = d3.min(chart.data, function (d) {
-      return d.m_all_11; })
-    var y1 = d3.max(chart.data, function (d) {
-      return d.m_all_11; })
-
-    chart.y = d3.scaleLinear()
-     // .domain(d3.extent(data, function (d) { return d.Math_proficient/100; })) 
-      .domain([y0, y1])
-      .range([height, 0])
-      .nice();
-
-    // AXES
-
-    var formatThousand = d3.format(".2s");
-    var formatThousand_x = function(d) { if (d > 0) {
-      return "$" + formatThousand(d/1000) + "k"; }
-    };
-
-    var formatPoints = d3.format("");
-
-    chart.xAxis = d3.axisBottom()
-        .scale(chart.x)
-        .ticks(10)
-        //.orient("top")
-        .tickSize(-height) 
-        .tickFormat(formatThousand_x);
-
-
-
-
-    chart.yAxis = d3.axisLeft()
-        .scale(chart.y)
-      //  .ticks(16)
-  //      .orient("left")
-     //   .outerTickSize(0)
-        .tickSize(-width, 0, 0) 
-        .tickFormat(formatPoints);
-
-
-  //AXES
-
-    var gx = chart.svg.append("g")
-        .attr("class", "x axis")
-        .attr("transform", "translate(0," + (height) + ")")
-        .call(chart.xAxis) 
-    gx.selectAll("g").filter(function(d) { return d;}) //need to use filter since true values do not return 0
-        .classed("no-minor", true);
-    gx.selectAll("text")
-       .attr("transform", "translate(0," + (height*.005) + ")")  
-    gx.append("text")
-        .attr('class', 'labels')
-        .attr("transform", "translate(" + (width /2) + " ," + (height/18) + ")")
-        .style("fill", "black")
-        .attr("text-anchor", "middle")
-        .text("Per-Pupil Expenses");
-
-
-
-    var gy= chart.svg.append("g")
-        .attr("class", "y axis")
-     //   .attr("transform", "translate(" + ",0)")
-        .call(chart.yAxis)
-    gy.selectAll("g").filter(function(d) { return d;})
-        .classed("no-minor", true);
-    gy.selectAll("text") 
-        .attr("x", 18)
-        .attr("dy", -3)
-    gy.append("text")
-        .attr('class', 'labels')
-        .attr("transform", "rotate(-90)")
-        .style("fill", "black") 
-        .attr("y", - (height*.03))
-        .attr("x", - (width/3))
-        .attr("dy", ".71em")
-        .style("text-anchor", "middle")
-        .text("Math Scores");
- 
-
-    chart.points = chart.svg.selectAll('.point') //point is used instead of circles, in case different shapes are used
+ /*   chart.points = chart.svg.selectAll('.point') //point is used instead of circles, in case different shapes are used
       .data(data);
 
     chart.points.enter().append('circle')
@@ -405,10 +336,10 @@ function SecondScatterplot(data) {
       .attr('cy', function (d) { return chart.y(d.m_all_11); })
       .style("fill", "#a5a5a5")
       .style("stroke", "#697fd7")
-      .style("stroke-width", "3")
+      .style("stroke-width", "3")*/
 
 
-  }
+}
 
 
 
