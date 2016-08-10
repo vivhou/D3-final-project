@@ -9,11 +9,6 @@ var options= {
 };
 
 
-  // STEP 2 EVENT HANDLER
-  d3.select('#step2').on('click', function () {
-    firstScatterplot.update();
-  }); 
-
 
   //STEP 3 EVENT HANDLERS
 d3.select('#sort_math').on('click', function () {
@@ -288,35 +283,11 @@ FirstScatterplot = function (data) {
         .attr("dy", ".71em")
         .style("text-anchor", "middle")
         .text("Math Scores");
- 
-/*
-    chart.points = chart.svg.selectAll('.point') //point is used instead of circles, in case different shapes are used
-      .data(data);
-console.log(chart.points)
-
-
-    chart.points.enter().append('circle')
-      .transition()
-      .duration(1000)
-      .delay(function(d, i) {
-      return i / scatterData.length * 500;  // Dynamic delay (i.e. each item delays a little longer)
-      })
-      .attr('class', 'point path step-1')
-      .attr('r', function(d) { return d.poverty * 120})
-      .attr('cx', function (d) { return chart.x(d.pp_expense_11); })
-      .attr('cy', function (d) { return chart.y(d.m_all_11); })
-      .style("fill", "#a5a5a5")
-      .style("stroke", "#697fd7")
-      .style("stroke-width", "3") 
-*/
-
 
 
 }
 
   
-
-//STEP 2
 
 FirstScatterplot.prototype.update =function (data) {
     var chart = this;
@@ -326,92 +297,111 @@ FirstScatterplot.prototype.update =function (data) {
     console.log(d3.select("#vis-container").attr("class"))
     console.log(d3.select("#vis-container").attr("class").includes("step-1"))
 
-//IF STATEMENT FOR APPENDING TWO CIRCLES ON STEP ONE
+//IF STATEMENT FOR STEPS ONE AND TWO
     if (d3.select("#vis-container").attr("class").includes("step-1")) {
-      chart.x = d3.scaleLinear()
-        .domain([20000, d3.max(chart.data, function (d) { return parseInt(d.pp_expense_11); })]) 
-        .range([0, width])
-        .nice();
 
-      firstScatterData_1 = firstScatterData.filter(function(d) {
-          return d.pp_expense_11 > 20000;
-      })
+    //STEP ONE SCALE
+        chart.x = d3.scaleLinear()
+          .domain([20000, d3.max(chart.data, function (d) { return parseInt(d.pp_expense_11); })]) 
+          .range([0, width])
+          .nice();
 
-      var points = chart.svg.selectAll('.point') //point is used instead of circles, in case different shapes are used
-        .data(firstScatterData_1);
-      console.log(points)
+      //STEP ONE: APPEND TWO CIRCLES
 
-      points.enter().append('circle')
-        .transition()
-        .duration(1000)
-        .delay(function(d, i) {
-        return i / scatterData.length * 500;  // Dynamic delay (i.e. each item delays a little longer)
+        firstScatterData_1 = firstScatterData.filter(function(d) {
+            return d.pp_expense_11 > 20000;
         })
-        .attr('class', 'point path step-1')
-        .attr('r', function(d) { return d.poverty * 120})
-        .attr('cx', function (d) { return chart.x(d.pp_expense_11); })
-        .attr('cy', function (d) { return chart.y(d.m_all_11); })
-        .style("fill", "#a5a5a5")
-        .style("stroke", "#697fd7")
-        .style("stroke-width", "3") 
 
-     points.exit().remove();  
-    
-
-    } else if (d3.select("#vis-container").attr("class").includes("step-2")) {
-
-      x1 = d3.max(chart.data, function (d) { 
-        return parseInt(d.pp_expense_11); 
-      })
-      chart.x.domain([0, x1])  // change scale to 0, to between 10 and 100
-      
-      var formatThousand = d3.format(".2s");
-      var formatThousand_x = function(d) { if (d > 0) {
-        return "$" + formatThousand(d/1000) + "k"; }
-      };
-
-    //CHANGING X-AXIS
-
-      var formatPoints = d3.format("");
-      chart.xAxis = d3.axisBottom()
-          .scale(chart.x)
-          .ticks(10)
-          //.orient("top")
-          .tickSize(-height) 
-          .tickFormat(formatThousand_x);
-      chart.svg.selectAll(".axis").filter(".x")
-        .transition().duration(1000)
-        //.attr('class', 'step-2')
-        .call(chart.xAxis);
-      chart.svg.selectAll("g").filter(function(d) { return d;})
-          .classed("no-minor", true);
-
-      //APPEND REMAINING POINTS
-
-       firstScatterData_2 = firstScatterData.filter(function(d) {
-            return d.pp_expense_11 < 20000;
-        })
 
         var points = chart.svg.selectAll('.point') //point is used instead of circles, in case different shapes are used
-          .data(firstScatterData_2);
+          .data(firstScatterData_1);
         console.log(points)
 
         points.enter().append('circle')
           .transition()
           .duration(1000)
           .delay(function(d, i) {
-          return i / scatterData.length * 500;  // Dynamic delay (i.e. each item delays a little longer)
+          return i / scatterData.length * 500;  
           })
-          .attr('class', 'point path step-2')
+          .attr('class', 'point path step-1')
           .attr('r', function(d) { return d.poverty * 120})
           .attr('cx', function (d) { return chart.x(d.pp_expense_11); })
           .attr('cy', function (d) { return chart.y(d.m_all_11); })
           .style("fill", "#a5a5a5")
           .style("stroke", "#697fd7")
-          .style("stroke-width", "3"); 
+          .style("stroke-width", "3") 
+          .style("opacity", "1.0")
+
+         points.exit()
+          .transition()
+          .duration(300)
+          .delay(function(d, i) {
+            return i / scatterData.length * 1000;  
+          }).remove();  
+    
+    //STEP 2
+    } else if (d3.select("#vis-container").attr("class").includes("step-2")) {
+
+
+        x1 = d3.max(chart.data, function (d) { 
+          return parseInt(d.pp_expense_11*1.05); //need to multiply by 1.05 to extend x-axis and keep circle on graph
+        })
+        chart.x.domain([0, x1])  
+        var formatThousand = d3.format(".2s");
+        var formatThousand_x = function(d) { if (d > 0) {
+          return "$" + formatThousand(d/1000) + "k"; }
+        };
+
+      //CHANGING X-AXIS
+
+        var formatPoints = d3.format("");
+        chart.xAxis = d3.axisBottom()
+            .scale(chart.x)
+            .ticks(10)
+            //.orient("top")
+            .tickSize(-height) 
+            .tickFormat(formatThousand_x);
+        chart.svg.selectAll(".axis").filter(".x")
+          .transition().duration(1000)
+          .call(chart.xAxis);
+        chart.svg.selectAll("g").filter(function(d) { return d;})
+            .classed("no-minor", true);
+
+    //SELECTING EXISTING TWO CIRCLES AND MOVE ACCORDING TO NEW SCALE
+        chart.svg.selectAll('.point')
+            .transition().duration(1000)
+            .attr('cx', function (d) { return chart.x(d.pp_expense_11); })
+            .attr('cy', function (d) { return chart.y(d.m_all_11); });
+
+
+      //APPEND REMAINING POINTS
+
+         firstScatterData_2 = firstScatterData.filter(function(d) {
+              return d.pp_expense_11 < 20000;
+          })
+
+          var points = chart.svg.selectAll('.point') //point is used instead of circles, in case different shapes are used
+            .data(firstScatterData_2);
+
+
+          points.enter().append('circle')
+            .transition()
+            .duration(1000)
+            .delay(function(d, i) {
+            return i / scatterData.length * 500;  // Dynamic delay (i.e. each item delays a little longer)
+            })
+            .attr('class', 'point path step-2')
+            .attr('r', function(d) { return d.poverty * 120})
+            .attr('cx', function (d) { return chart.x(d.pp_expense_11); })
+            .attr('cy', function (d) { return chart.y(d.m_all_11); })
+            .style("fill", "#a5a5a5")
+            .style("stroke", "#697fd7")
+            .style("stroke-width", "3"); 
 
    
-  points.exit().transition().remove();  
+ // points.exit().transition().remove(); 
+
+
       }
 }
 
