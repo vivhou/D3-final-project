@@ -32,12 +32,12 @@
   background-color: #696969;
 } 
 
-/* By default, third-steps is hidden. */
 
-.hide-step {
-  position: absolute;
-  display: none;
-}
+
+.step-container {display: none;}
+.step-1 .step-container-1 { display: block; }
+.step-2 .step-container-2 { display: block; }
+.step-3 .step-container-3 { display: block; }
 
 .annotation {
   position: absolute;

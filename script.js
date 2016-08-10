@@ -149,40 +149,34 @@ function switchStep(newStep)
 }
 */
 
+d3.select("#vis-container").attr('class', 'step-1')
+.transition().delay(300).duration(500);
+
 d3.selectAll("a.btn").on("click", function(d) {
   var clickedStep = d3.select(this).attr("id");
   switchStep(clickedStep);
   console.log(clickedStep)
-  function switchAnnotation(clickedStep) {
+ function switchAnnotation(clickedStep) {
     if (clickedStep === 'step3') {
       console.log('1')
-      d3.selectAll(".first-step, .second-step")
-        .style("display", "none")
-        .style("opacity", 0.0);
-      d3.select("#step3-annotation")
-        .style("display", "block")
+      d3.select("#vis-container").attr('class', 'step-3')
         .transition().delay(300).duration(500)
         .style("opacity", 1);
     }
     else if (clickedStep === 'step2') {
-      d3.selectAll(".third-step")
-        .style("display", "none")
-        .style("opacity", 0.0);
-      d3.select("#step2-annotation")
-        .style("display", "block")
+      d3.select("#vis-container").attr('class', 'step-2')
       .transition().delay(300).duration(500)
         .style("opacity", 1); 
         firstScatterplot.update();
     }
 
     else if (clickedStep === 'step1') {
-      d3.selectAll(".third-step, .second-step")
-        .style("display", "none")
-        .style("opacity", 0.0);
-      d3.select("#step1-annotation")
-        .style("display", "block")
+   //   d3.select("#vis-container").attr('class', 'step-container')
+      d3.select("#vis-container").attr('class', 'step-1')
       .transition().delay(300).duration(500)
         .style("opacity", 1);
+        firstScatterplot.update();
+        
 
     }
   }
@@ -198,6 +192,7 @@ FirstScatterplot = function (data) {
     chart.data = data
 
     chart.svg = d3.select("#chart1")
+  //    .attr('class', 'step-1')
       .append("div")
       .classed("svg-container", true)
       .append("svg")
@@ -297,19 +292,23 @@ FirstScatterplot = function (data) {
     chart.points = chart.svg.selectAll('.point') //point is used instead of circles, in case different shapes are used
       .data(data);
 
+
+
     chart.points.enter().append('circle')
       .transition()
       .duration(1000)
       .delay(function(d, i) {
       return i / scatterData.length * 500;  // Dynamic delay (i.e. each item delays a little longer)
       })
-      .attr('class', 'point path')
+      .attr('class', 'point path step-1')
       .attr('r', function(d) { return d.poverty * 120})
       .attr('cx', function (d) { return chart.x(d.pp_expense_11); })
       .attr('cy', function (d) { return chart.y(d.m_all_11); })
       .style("fill", "#a5a5a5")
       .style("stroke", "#697fd7")
-      .style("stroke-width", "3")
+      .style("stroke-width", "3") 
+
+
 
 
 }
@@ -320,12 +319,37 @@ FirstScatterplot = function (data) {
 
 FirstScatterplot.prototype.update =function (data) {
     var chart = this;
-    
+    chart.points.exit();
     x1 = d3.max(chart.data, function (d) { return parseInt(d.pp_expense_11); })
  
+    console.log(d3.select("#vis-container").attr("class"))
+    console.log(d3.select("#vis-container").attr("class").includes("step-1"))
+
+    if (d3.select("#vis-container").attr("class").includes("step-1")) {
+    chart.x = d3.scaleLinear()
+      .domain([20000, d3.max(chart.data, function (d) { return parseInt(d.pp_expense_11); })]) 
+      .range([0, width])
+      .nice();
+    } else {
+      console.log("else")
     chart.x.domain([0, x1])  // change scale to 0, to between 10 and 100
+    }
+        var formatThousand = d3.format(".2s");
+    var formatThousand_x = function(d) { if (d > 0) {
+      return "$" + formatThousand(d/1000) + "k"; }
+    };
+
+    var formatPoints = d3.format("");
+    chart.xAxis = d3.axisBottom()
+        .scale(chart.x)
+        .ticks(10)
+        //.orient("top")
+        .tickSize(-height) 
+        .tickFormat(formatThousand_x);
+
     chart.svg.selectAll(".axis").filter(".x")
       .transition().duration(1000)
+      //.attr('class', 'step-2')
       .call(chart.xAxis);
     chart.svg.selectAll("g").filter(function(d) { return d;})
         .classed("no-minor", true);
@@ -338,15 +362,15 @@ FirstScatterplot.prototype.update =function (data) {
     */ 
   //  chart.points = chart.svg.select('.point') //point is used instead of circles, in case different shapes are used
   //    .data(data);
-
-    chart.points.exit().remove();
-    chart.points.enter().append('circle')
+/*
+    
+   chart.points.enter().append('circle')
       .transition()
       .duration(1000)
       .delay(function(d, i) {
       return i / scatterData.length * 500;  // Dynamic delay (i.e. each item delays a little longer)
       })
-      .attr('class', 'point path')
+      .attr('class', 'point path step-1')
       .attr('r', function(d) { return d.pp_expense_11 > 20000 ? 0: d.poverty * 120})
       .attr('cx', function (d) { return chart.x(d.pp_expense_11); })
       .attr('cy', function (d) { return chart.y(d.m_all_11); })
@@ -354,7 +378,7 @@ FirstScatterplot.prototype.update =function (data) {
       .style("stroke", "#697fd7")
       .style("stroke-width", "3")
 
-
+chart.points.exit().remove();  */
 }
 
 
