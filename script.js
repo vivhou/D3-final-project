@@ -65,21 +65,21 @@ var path = d3.geoPath()
     .awaitAll(function(error, results) {
       if (error) { throw error; }
 
-        for (var i = 0; i < results[1].length; i++) {
-      var state = results[1][i].state;
-      var math_diff = results[1][i].math_diff;
-      var read_diff = results[1][i].read_diff;
-      var pp_diff = results[1][i].pp_diff;
-      var poverty = results[1][i].poverty;
-      var m_diff_white = results[1][i].m_diff_white;
-      var m_diff_black = results[1][i].m_diff_black;
-      var m_diff_his = results[1][i].m_diff_his;
-      var r_diff_white = results[1][i].r_diff_white;
-      var r_diff_black = results[1][i].r_diff_black;
-      var r_diff_his = results[1][i].r_diff_his;
-      var state_name = results[1][i].state_name;
-      var pp_expense_11 = results[1][i].pp_expense_11;
-      var m_all_11 = results[1][i].m_all_11;
+      for (var i = 0; i < results[1].length; i++) {
+          var state = results[1][i].state;
+          var math_diff = results[1][i].math_diff;
+          var read_diff = results[1][i].read_diff;
+          var pp_diff = results[1][i].pp_diff;
+          var poverty = results[1][i].poverty;
+          var m_diff_white = results[1][i].m_diff_white;
+          var m_diff_black = results[1][i].m_diff_black;
+          var m_diff_his = results[1][i].m_diff_his;
+          var r_diff_white = results[1][i].r_diff_white;
+          var r_diff_black = results[1][i].r_diff_black;
+          var r_diff_his = results[1][i].r_diff_his;
+          var state_name = results[1][i].state_name;
+          var pp_expense_11 = results[1][i].pp_expense_11;
+          var m_all_11 = results[1][i].m_all_11;
 
 
 
@@ -253,7 +253,7 @@ FirstScatterplot = function (data) {
         .attr("transform", "translate(0," + (height) + ")")
         .call(chart.xAxis) 
     gx.selectAll("g").filter(function(d) { return d;}) //need to use filter since true values do not return 0
-        .classed("no-minor", true);
+        .classed("no-minor", false);
     gx.selectAll("text")
        .attr("transform", "translate(0," + (height*.005) + ")")  
     gx.append("text")
@@ -270,7 +270,7 @@ FirstScatterplot = function (data) {
      //   .attr("transform", "translate(" + ",0)")
         .call(chart.yAxis)
     gy.selectAll("g").filter(function(d) { return d;})
-        .classed("no-minor", true);
+        .classed("no-minor", false);
     gy.selectAll("text") 
         .attr("x", 18)
         .attr("dy", -3)
@@ -283,6 +283,12 @@ FirstScatterplot = function (data) {
         .attr("dy", ".71em")
         .style("text-anchor", "middle")
         .text("Math Scores");
+//TOOLTIP
+
+  chart.tooltip = d3.select("body").append("div")   
+          .attr("class", "tooltip")               
+          .style("opacity", 0);
+
 
 
 }
@@ -300,13 +306,23 @@ FirstScatterplot.prototype.update =function (data) {
 //IF STATEMENT FOR STEPS ONE AND TWO
     if (d3.select("#vis-container").attr("class").includes("step-1")) {
 
-    //STEP ONE SCALE
+//STEP ONE SCALE
         chart.x = d3.scaleLinear()
           .domain([20000, d3.max(chart.data, function (d) { return parseInt(d.pp_expense_11); })]) 
           .range([0, width])
           .nice();
-
-      //STEP ONE: APPEND TWO CIRCLES
+  //NEED TO CALL THE X-AXIS SO THAT IT RESCALES BACK TO ORIGINAL
+        chart.xAxis = d3.axisBottom()
+          .scale(chart.x)
+          .tickSize(-height) 
+          .tickFormat(formatThousand_x);
+        chart.svg.selectAll(".axis").filter(".x")
+          .transition().duration(1000)
+          .call(chart.xAxis);
+          chart.svg.selectAll("g").filter(function(d) { return d;})
+            .classed("no-minor", false);
+        
+  //STEP ONE: APPEND TWO CIRCLES
 
         firstScatterData_1 = firstScatterData.filter(function(d) {
             return d.pp_expense_11 > 20000;
@@ -315,15 +331,13 @@ FirstScatterplot.prototype.update =function (data) {
 
         var points = chart.svg.selectAll('.point') //point is used instead of circles, in case different shapes are used
           .data(firstScatterData_1);
-        console.log(points)
-
         points.enter().append('circle')
           .transition()
           .duration(1000)
           .delay(function(d, i) {
-          return i / scatterData.length * 500;  
+          return i / firstScatterData_1.length * 500;  
           })
-          .attr('class', 'point path step-1')
+          .attr('class', 'point path step-1 step-2')
           .attr('r', function(d) { return d.poverty * 120})
           .attr('cx', function (d) { return chart.x(d.pp_expense_11); })
           .attr('cy', function (d) { return chart.y(d.m_all_11); })
@@ -332,15 +346,23 @@ FirstScatterplot.prototype.update =function (data) {
           .style("stroke-width", "3") 
           .style("opacity", "1.0")
 
-         points.exit()
+  //IF PREVIOUSLY ON STEP TWO: 
+      //REMOVE REMAINING 49 POINTS
+        
+        points.exit()
           .transition()
           .duration(300)
           .delay(function(d, i) {
-            return i / scatterData.length * 1000;  
-          }).remove();  
+            return i / firstScatterData.length * 1000;  
+          }).remove(); 
+      //TRANSITION POINTS BACK TO ORIGINAL X-SCALE
+        chart.svg.selectAll('.point')
+          .transition().duration(1000)
+          .attr('cx', function (d) { return chart.x(d.pp_expense_11); })
+          .attr('cy', function (d) { return chart.y(d.m_all_11); }); 
     
     //STEP 2
-    } else if (d3.select("#vis-container").attr("class").includes("step-2")) {
+  } else if (d3.select("#vis-container").attr("class").includes("step-2")) {
 
 
         x1 = d3.max(chart.data, function (d) { 
@@ -365,7 +387,9 @@ FirstScatterplot.prototype.update =function (data) {
           .transition().duration(1000)
           .call(chart.xAxis);
         chart.svg.selectAll("g").filter(function(d) { return d;})
-            .classed("no-minor", true);
+            .classed("no-minor", false);
+
+
 
     //SELECTING EXISTING TWO CIRCLES AND MOVE ACCORDING TO NEW SCALE
         chart.svg.selectAll('.point')
@@ -376,13 +400,13 @@ FirstScatterplot.prototype.update =function (data) {
 
       //APPEND REMAINING POINTS
 
-         firstScatterData_2 = firstScatterData.filter(function(d) {
-              return d.pp_expense_11 < 20000;
-          })
+
+        firstScatterData_2 = firstScatterData.filter(function(d) {
+            return d.pp_expense_11 < 20000;
+      })
 
           var points = chart.svg.selectAll('.point') //point is used instead of circles, in case different shapes are used
             .data(firstScatterData_2);
-
 
           points.enter().append('circle')
             .transition()
@@ -396,13 +420,45 @@ FirstScatterplot.prototype.update =function (data) {
             .attr('cy', function (d) { return chart.y(d.m_all_11); })
             .style("fill", "#a5a5a5")
             .style("stroke", "#697fd7")
-            .style("stroke-width", "3"); 
+            .style("stroke-width", "3") 
+      .on("mouseover", function(d) {   
+          chart.tooltip.transition()        
+              .duration(200)      
+              .style("opacity", 0.8)
+          chart.tooltip.html(d["state"])
+              .style("left", (d3.event.pageX) + "px")     
+              .style("top", (d3.event.pageY - 28) + "px");
 
-   
- // points.exit().transition().remove(); 
+     //idea from http://bl.ocks.org/weiglemc/6185069
+  
+       // var id = chart.states.features[i].properties.abbr
+      /*  var id = chart.data[i].state
+        d3.selectAll(".path")
+            .style("opacity", function(d) {
+             return d.state == id ? 1 : 0.2;
+            })
+            .style("stroke", function(d) {
+             return d.state == id ? 1 : 0.2;
+            });
+*/
+      })        
+
+      .on("mouseout", function(d) {       
+          chart.tooltip.html("")
+              .transition()        
+              .duration(500)      
+              .style("opacity", 0)
+
+          d3.selectAll(".path")
+            .style("opacity", 0.6);
+      });
+
+      points.exit().transition().remove(); 
 
 
-      }
+    }
+  
+
 }
 
 
@@ -712,6 +768,9 @@ function circleFill (d) {
         //.orient("top")
         .tickSize(-height) 
         .tickFormat(formatThousand_x);
+
+        console.log(d3.selectAll('.axis line'))
+
 
 
 
