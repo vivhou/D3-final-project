@@ -116,6 +116,7 @@ var path = d3.geoPath()
     scatterplot.update();
 
     firstScatterplot = new FirstScatterplot(results[1]);
+    firstScatterplot.update();
     
    
 
@@ -288,10 +289,10 @@ FirstScatterplot = function (data) {
         .style("text-anchor", "middle")
         .text("Math Scores");
  
-
+/*
     chart.points = chart.svg.selectAll('.point') //point is used instead of circles, in case different shapes are used
       .data(data);
-
+console.log(chart.points)
 
 
     chart.points.enter().append('circle')
@@ -307,7 +308,7 @@ FirstScatterplot = function (data) {
       .style("fill", "#a5a5a5")
       .style("stroke", "#697fd7")
       .style("stroke-width", "3") 
-
+*/
 
 
 
@@ -319,66 +320,99 @@ FirstScatterplot = function (data) {
 
 FirstScatterplot.prototype.update =function (data) {
     var chart = this;
-    chart.points.exit();
-    x1 = d3.max(chart.data, function (d) { return parseInt(d.pp_expense_11); })
+
+    firstScatterData = chart.data.slice();
  
     console.log(d3.select("#vis-container").attr("class"))
     console.log(d3.select("#vis-container").attr("class").includes("step-1"))
 
+//IF STATEMENT FOR APPENDING TWO CIRCLES ON STEP ONE
     if (d3.select("#vis-container").attr("class").includes("step-1")) {
-    chart.x = d3.scaleLinear()
-      .domain([20000, d3.max(chart.data, function (d) { return parseInt(d.pp_expense_11); })]) 
-      .range([0, width])
-      .nice();
-    } else {
-      console.log("else")
-    chart.x.domain([0, x1])  // change scale to 0, to between 10 and 100
-    }
-        var formatThousand = d3.format(".2s");
-    var formatThousand_x = function(d) { if (d > 0) {
-      return "$" + formatThousand(d/1000) + "k"; }
-    };
+      chart.x = d3.scaleLinear()
+        .domain([20000, d3.max(chart.data, function (d) { return parseInt(d.pp_expense_11); })]) 
+        .range([0, width])
+        .nice();
 
-    var formatPoints = d3.format("");
-    chart.xAxis = d3.axisBottom()
-        .scale(chart.x)
-        .ticks(10)
-        //.orient("top")
-        .tickSize(-height) 
-        .tickFormat(formatThousand_x);
-
-    chart.svg.selectAll(".axis").filter(".x")
-      .transition().duration(1000)
-      //.attr('class', 'step-2')
-      .call(chart.xAxis);
-    chart.svg.selectAll("g").filter(function(d) { return d;})
-        .classed("no-minor", true);
-
-   /*     .transition().duration(1500).ease("sin-in-out")  // https://github.com/mbostock/d3/wiki/Transitions#wiki-d3_ease
-                    .call(chart.xAxis);  
-            chart.svg.select(".labels")
-                .text("Math Scores");
-                
-    */ 
-  //  chart.points = chart.svg.select('.point') //point is used instead of circles, in case different shapes are used
-  //    .data(data);
-/*
-    
-   chart.points.enter().append('circle')
-      .transition()
-      .duration(1000)
-      .delay(function(d, i) {
-      return i / scatterData.length * 500;  // Dynamic delay (i.e. each item delays a little longer)
+      firstScatterData_1 = firstScatterData.filter(function(d) {
+          return d.pp_expense_11 > 20000;
       })
-      .attr('class', 'point path step-1')
-      .attr('r', function(d) { return d.pp_expense_11 > 20000 ? 0: d.poverty * 120})
-      .attr('cx', function (d) { return chart.x(d.pp_expense_11); })
-      .attr('cy', function (d) { return chart.y(d.m_all_11); })
-      .style("fill", "#a5a5a5")
-      .style("stroke", "#697fd7")
-      .style("stroke-width", "3")
 
-chart.points.exit().remove();  */
+      var points = chart.svg.selectAll('.point') //point is used instead of circles, in case different shapes are used
+        .data(firstScatterData_1);
+      console.log(points)
+
+      points.enter().append('circle')
+        .transition()
+        .duration(1000)
+        .delay(function(d, i) {
+        return i / scatterData.length * 500;  // Dynamic delay (i.e. each item delays a little longer)
+        })
+        .attr('class', 'point path step-1')
+        .attr('r', function(d) { return d.poverty * 120})
+        .attr('cx', function (d) { return chart.x(d.pp_expense_11); })
+        .attr('cy', function (d) { return chart.y(d.m_all_11); })
+        .style("fill", "#a5a5a5")
+        .style("stroke", "#697fd7")
+        .style("stroke-width", "3") 
+
+     points.exit().remove();  
+    
+
+    } else if (d3.select("#vis-container").attr("class").includes("step-2")) {
+
+      x1 = d3.max(chart.data, function (d) { 
+        return parseInt(d.pp_expense_11); 
+      })
+      chart.x.domain([0, x1])  // change scale to 0, to between 10 and 100
+      
+      var formatThousand = d3.format(".2s");
+      var formatThousand_x = function(d) { if (d > 0) {
+        return "$" + formatThousand(d/1000) + "k"; }
+      };
+
+    //CHANGING X-AXIS
+
+      var formatPoints = d3.format("");
+      chart.xAxis = d3.axisBottom()
+          .scale(chart.x)
+          .ticks(10)
+          //.orient("top")
+          .tickSize(-height) 
+          .tickFormat(formatThousand_x);
+      chart.svg.selectAll(".axis").filter(".x")
+        .transition().duration(1000)
+        //.attr('class', 'step-2')
+        .call(chart.xAxis);
+      chart.svg.selectAll("g").filter(function(d) { return d;})
+          .classed("no-minor", true);
+
+      //APPEND REMAINING POINTS
+
+       firstScatterData_2 = firstScatterData.filter(function(d) {
+            return d.pp_expense_11 < 20000;
+        })
+
+        var points = chart.svg.selectAll('.point') //point is used instead of circles, in case different shapes are used
+          .data(firstScatterData_2);
+        console.log(points)
+
+        points.enter().append('circle')
+          .transition()
+          .duration(1000)
+          .delay(function(d, i) {
+          return i / scatterData.length * 500;  // Dynamic delay (i.e. each item delays a little longer)
+          })
+          .attr('class', 'point path step-2')
+          .attr('r', function(d) { return d.poverty * 120})
+          .attr('cx', function (d) { return chart.x(d.pp_expense_11); })
+          .attr('cy', function (d) { return chart.y(d.m_all_11); })
+          .style("fill", "#a5a5a5")
+          .style("stroke", "#697fd7")
+          .style("stroke-width", "3"); 
+
+   
+  points.exit().transition().remove();  
+      }
 }
 
 
