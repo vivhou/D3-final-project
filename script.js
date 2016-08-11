@@ -338,7 +338,7 @@ FirstScatterplot.prototype.update =function (data) {
 
 
         var points = chart.svg.selectAll('.point') //point is used instead of circles, in case different shapes are used
-          .data(firstScatterData_1)
+          .data(firstScatterData_1, function(d) {return d.state; })
 
           //IF PREVIOUSLY ON STEP TWO: 
       //REMOVE REMAINING 49 POINTS
@@ -357,7 +357,7 @@ FirstScatterplot.prototype.update =function (data) {
           .delay(function(d, i) {
           return i / firstScatterData_1.length * 500;  
           })
-          .attr('class', 'point1 path step-1 step-2')
+          .attr('class', 'point path step-1 step-2')
           .attr('r', function(d) { return d.poverty * 120})
           .attr('cx', function (d) { return chart.x(d.pp_expense_11); })
           .attr('cy', function (d) { return chart.y(d.m_all_11); })
@@ -368,7 +368,7 @@ FirstScatterplot.prototype.update =function (data) {
 
   
       //TRANSITION POINTS BACK TO ORIGINAL X-SCALE
-        chart.svg.selectAll('.point1')
+        chart.svg.selectAll('.point')
           .transition().duration(1000)
           .attr('cx', function (d) { return chart.x(d.pp_expense_11); })
           .attr('cy', function (d) { return chart.y(d.m_all_11); }); 
@@ -406,38 +406,32 @@ FirstScatterplot.prototype.update =function (data) {
 
 
     //SELECTING EXISTING TWO CIRCLES AND MOVE ACCORDING TO NEW SCALE
-     chart.svg.selectAll('.point1')
+   //  chart.svg.selectAll('.point')
            // .attr('class', 'step-2')
-            .transition().duration(1000)
-            .attr('cx', function (d) { return chart.x(d.pp_expense_11); })
-            .attr('cy', function (d) { return chart.y(d.m_all_11); });
+   //         .transition().duration(1000)
+    //        .attr('cx', function (d) { return chart.x(d.pp_expense_11); })
+    //        .attr('cy', function (d) { return chart.y(d.m_all_11); });
 
 
       //APPEND REMAINING POINTS
 
 
-        firstScatterData_2 = firstScatterData.filter(function(d) {
-            return d.pp_expense_11 < 20000;
-      })
-
 
           var points = chart.svg.selectAll('.point') //point is used instead of circles, in case different shapes are used
-            .data(firstScatterData_2);
+            .data(firstScatterData);
 
           points.enter().append('circle')
-            .transition()
-            .duration(1000)
-            .delay(function(d, i) {
-            return i / scatterData.length * 500;  // Dynamic delay (i.e. each item delays a little longer)
-            })
+        //    .transition()
+         //   .duration(1000)
+         //   .delay(function(d, i) {
+         //   return i / scatterData.length * 500;  // Dynamic delay (i.e. each item delays a little longer)
+         //   })
             .attr('class', 'point path')
             .attr('r', function(d) { return d.poverty * 120})
-            .attr('cx', function (d) { return chart.x(d.pp_expense_11); })
-            .attr('cy', function (d) { return chart.y(d.m_all_11); })
             .style("fill", "#a5a5a5")
             .style("stroke", "#697fd7")
             .style("stroke-width", "3") 
-        .on("mouseover", function(d) { 
+    /*    .on("mouseover", function(d) { 
         console.log(d.state)  
           chart.tooltip.transition()        
               .duration(200)      
@@ -454,7 +448,10 @@ FirstScatterplot.prototype.update =function (data) {
 
           d3.selectAll(".path")
             .style("opacity", 0.6);
-      }); 
+
+      }) */ .merge(points)
+            .attr('cx', function (d) { console.log(d); return chart.x(d.pp_expense_11); })
+            .attr('cy', function (d) { return chart.y(d.m_all_11); })
 
       
       points.exit().transition().remove(); 
