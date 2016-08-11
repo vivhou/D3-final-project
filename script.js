@@ -151,13 +151,15 @@ d3.select("#vis-container").attr('class', 'step-1')
 d3.selectAll("a.btn").on("click", function(d) {
   var clickedStep = d3.select(this).attr("id");
   switchStep(clickedStep);
-  console.log(clickedStep)
+
+
  function switchAnnotation(clickedStep) {
-    if (clickedStep === 'step3') {
+    if (clickedStep === 'step1') {
       console.log('1')
-      d3.select("#vis-container").attr('class', 'step-3')
+      d3.select("#vis-container").attr('class', 'step-1')
         .transition().delay(300).duration(500)
         .style("opacity", 1);
+        firstScatterplot.update();   
     }
     else if (clickedStep === 'step2') {
       d3.select("#vis-container").attr('class', 'step-2')
@@ -166,12 +168,19 @@ d3.selectAll("a.btn").on("click", function(d) {
         firstScatterplot.update();
     }
 
-    else if (clickedStep === 'step1') {
+    else if (clickedStep === 'step3') {
    //   d3.select("#vis-container").attr('class', 'step-container')
-      d3.select("#vis-container").attr('class', 'step-1')
+      d3.select("#vis-container").attr('class', 'step-3')
       .transition().delay(300).duration(500)
         .style("opacity", 1);
-        firstScatterplot.update();
+        firstScatterplot.update();   
+
+    }
+     else if (clickedStep === 'step4') {
+   //   d3.select("#vis-container").attr('class', 'step-container')
+      d3.select("#vis-container").attr('class', 'step-4')
+      .transition().delay(300).duration(500)
+        .style("opacity", 1);
         
 
     }
@@ -253,7 +262,7 @@ FirstScatterplot = function (data) {
         .attr("transform", "translate(0," + (height) + ")")
         .call(chart.xAxis) 
     gx.selectAll("g").filter(function(d) { return d;}) //need to use filter since true values do not return 0
-        .classed("no-minor", false);
+        .classed("no-minor", true);
     gx.selectAll("text")
        .attr("transform", "translate(0," + (height*.005) + ")")  
     gx.append("text")
@@ -270,7 +279,7 @@ FirstScatterplot = function (data) {
      //   .attr("transform", "translate(" + ",0)")
         .call(chart.yAxis)
     gy.selectAll("g").filter(function(d) { return d;})
-        .classed("no-minor", false);
+        .classed("no-minor", true);
     gy.selectAll("text") 
         .attr("x", 18)
         .attr("dy", -3)
@@ -286,7 +295,7 @@ FirstScatterplot = function (data) {
 //TOOLTIP
 
   chart.tooltip = d3.select("body").append("div")   
-          .attr("class", "tooltip")               
+          .attr("class", "tooltip step-2 step-3")               
           .style("opacity", 0);
 
 
@@ -300,11 +309,9 @@ FirstScatterplot.prototype.update =function (data) {
 
     firstScatterData = chart.data.slice();
  
-    console.log(d3.select("#vis-container").attr("class"))
-    console.log(d3.select("#vis-container").attr("class").includes("step-1"))
 
 //IF STATEMENT FOR STEPS ONE AND TWO
-    if (d3.select("#vis-container").attr("class").includes("step-1")) {
+    if (d3.select("#vis-container").attr("class") === "step-1") {
 
 //STEP ONE SCALE
         chart.x = d3.scaleLinear()
@@ -320,9 +327,10 @@ FirstScatterplot.prototype.update =function (data) {
           .transition().duration(1000)
           .call(chart.xAxis);
           chart.svg.selectAll("g").filter(function(d) { return d;})
-            .classed("no-minor", false);
+            .classed("no-minor", true);
         
   //STEP ONE: APPEND TWO CIRCLES
+    
 
         firstScatterData_1 = firstScatterData.filter(function(d) {
             return d.pp_expense_11 > 20000;
@@ -330,23 +338,9 @@ FirstScatterplot.prototype.update =function (data) {
 
 
         var points = chart.svg.selectAll('.point') //point is used instead of circles, in case different shapes are used
-          .data(firstScatterData_1);
-        points.enter().append('circle')
-          .transition()
-          .duration(1000)
-          .delay(function(d, i) {
-          return i / firstScatterData_1.length * 500;  
-          })
-          .attr('class', 'point path step-1 step-2')
-          .attr('r', function(d) { return d.poverty * 120})
-          .attr('cx', function (d) { return chart.x(d.pp_expense_11); })
-          .attr('cy', function (d) { return chart.y(d.m_all_11); })
-          .style("fill", "#a5a5a5")
-          .style("stroke", "#697fd7")
-          .style("stroke-width", "3") 
-          .style("opacity", "1.0")
+          .data(firstScatterData_1)
 
-  //IF PREVIOUSLY ON STEP TWO: 
+          //IF PREVIOUSLY ON STEP TWO: 
       //REMOVE REMAINING 49 POINTS
         
         points.exit()
@@ -355,14 +349,34 @@ FirstScatterplot.prototype.update =function (data) {
           .delay(function(d, i) {
             return i / firstScatterData.length * 1000;  
           }).remove(); 
+   
+          
+        points.enter().append('circle')
+          .transition()
+          .duration(1000)
+          .delay(function(d, i) {
+          return i / firstScatterData_1.length * 500;  
+          })
+          .attr('class', 'point1 path step-1 step-2')
+          .attr('r', function(d) { return d.poverty * 120})
+          .attr('cx', function (d) { return chart.x(d.pp_expense_11); })
+          .attr('cy', function (d) { return chart.y(d.m_all_11); })
+          .style("fill", "#a5a5a5")
+          .style("stroke", "#697fd7")
+          .style("stroke-width", "3") 
+          .style("opacity", "1.0")
+
+  
       //TRANSITION POINTS BACK TO ORIGINAL X-SCALE
-        chart.svg.selectAll('.point')
+        chart.svg.selectAll('.point1')
           .transition().duration(1000)
           .attr('cx', function (d) { return chart.x(d.pp_expense_11); })
           .attr('cy', function (d) { return chart.y(d.m_all_11); }); 
+
+      points.exit().remove();
     
-    //STEP 2
-  } else if (d3.select("#vis-container").attr("class").includes("step-2")) {
+    //ELSE: STEP 2
+  } else if (d3.select("#vis-container").attr("class") === "step-2") {
 
 
         x1 = d3.max(chart.data, function (d) { 
@@ -387,12 +401,13 @@ FirstScatterplot.prototype.update =function (data) {
           .transition().duration(1000)
           .call(chart.xAxis);
         chart.svg.selectAll("g").filter(function(d) { return d;})
-            .classed("no-minor", false);
+            .classed("no-minor", true);
 
 
 
     //SELECTING EXISTING TWO CIRCLES AND MOVE ACCORDING TO NEW SCALE
-        chart.svg.selectAll('.point')
+     chart.svg.selectAll('.point1')
+           // .attr('class', 'step-2')
             .transition().duration(1000)
             .attr('cx', function (d) { return chart.x(d.pp_expense_11); })
             .attr('cy', function (d) { return chart.y(d.m_all_11); });
@@ -405,6 +420,7 @@ FirstScatterplot.prototype.update =function (data) {
             return d.pp_expense_11 < 20000;
       })
 
+
           var points = chart.svg.selectAll('.point') //point is used instead of circles, in case different shapes are used
             .data(firstScatterData_2);
 
@@ -414,35 +430,22 @@ FirstScatterplot.prototype.update =function (data) {
             .delay(function(d, i) {
             return i / scatterData.length * 500;  // Dynamic delay (i.e. each item delays a little longer)
             })
-            .attr('class', 'point path step-2')
+            .attr('class', 'point path')
             .attr('r', function(d) { return d.poverty * 120})
             .attr('cx', function (d) { return chart.x(d.pp_expense_11); })
             .attr('cy', function (d) { return chart.y(d.m_all_11); })
             .style("fill", "#a5a5a5")
             .style("stroke", "#697fd7")
             .style("stroke-width", "3") 
-      .on("mouseover", function(d) {   
+        .on("mouseover", function(d) { 
+        console.log(d.state)  
           chart.tooltip.transition()        
               .duration(200)      
               .style("opacity", 0.8)
           chart.tooltip.html(d["state"])
               .style("left", (d3.event.pageX) + "px")     
               .style("top", (d3.event.pageY - 28) + "px");
-
-     //idea from http://bl.ocks.org/weiglemc/6185069
-  
-       // var id = chart.states.features[i].properties.abbr
-      /*  var id = chart.data[i].state
-        d3.selectAll(".path")
-            .style("opacity", function(d) {
-             return d.state == id ? 1 : 0.2;
-            })
-            .style("stroke", function(d) {
-             return d.state == id ? 1 : 0.2;
-            });
-*/
-      })        
-
+      })
       .on("mouseout", function(d) {       
           chart.tooltip.html("")
               .transition()        
@@ -451,13 +454,32 @@ FirstScatterplot.prototype.update =function (data) {
 
           d3.selectAll(".path")
             .style("opacity", 0.6);
-      });
+      }); 
 
+      
       points.exit().transition().remove(); 
+    
+
+  //ELSE: STEP 3
+    } else if (d3.select("#vis-container").attr("class") === "step-3") {
+
+   
+
+      firstScatterData_3 = firstScatterData.sort(function(a, b) {
+            return a.poverty < b.poverty ? 1: -1;
+      }) .slice(10,50);
 
 
+      var points = chart.svg.selectAll('.point') 
+        .data(firstScatterData_3)
+       points.exit()
+          .transition()
+          .duration(300)
+          .delay(function(d, i) {
+            return i / firstScatterData_3.length * 1000;  
+          }).remove(); 
     }
-  
+    
 
 }
 
@@ -768,11 +790,6 @@ function circleFill (d) {
         //.orient("top")
         .tickSize(-height) 
         .tickFormat(formatThousand_x);
-
-        console.log(d3.selectAll('.axis line'))
-
-
-
 
 
     chart.yAxis = d3.axisLeft()

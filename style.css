@@ -38,6 +38,7 @@
 .step-1 .step-container-1 { display: block; }
 .step-2 .step-container-2 { display: block; }
 .step-3 .step-container-3 { display: block; }
+.step-4 .step-container-4 { display: block; }
 
 .annotation {
   position: absolute;
