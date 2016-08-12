@@ -5,7 +5,8 @@
 var scatterData = [];
 
 var options= {
-    filtered: 'select_math'
+    filtered: 'select_math',
+    step: 1
 };
 
 
@@ -130,20 +131,6 @@ function switchStep(newStep)
   d3.select("#" + newStep).classed("active", true);
 }
 
-/*function switchAnnotation(newStep) 
-
-
-{
-  d3.select(".second-step")
-    .style("display", "none")
-    .style("opacity", 0.0);
-
-  d3.select(".third-step")
-    .style("display", "block")
-    .transition().delay(300).duration(500)
-      .style("opacity", 1);
-}
-*/
 
 d3.select("#vis-container").attr('class', 'step-1')
 .transition().delay(300).duration(500);
@@ -154,11 +141,13 @@ d3.selectAll("a.btn").on("click", function(d) {
 
 
  function switchAnnotation(clickedStep) {
+  options.step = 1;
+  d3.select('#vis-container').attr('class', 'step-1')
+  
     if (clickedStep === 'step1') {
       console.log('1')
       d3.select("#vis-container").attr('class', 'step-1')
         .transition().delay(300).duration(500)
-        .style("opacity", 1);
         firstScatterplot.update();   
     }
     else if (clickedStep === 'step2') {
@@ -180,9 +169,7 @@ d3.selectAll("a.btn").on("click", function(d) {
    //   d3.select("#vis-container").attr('class', 'step-container')
       d3.select("#vis-container").attr('class', 'step-4')
       .transition().delay(300).duration(500)
-        .style("opacity", 1);
-        
-
+        .style("opacity", 1);    
     }
   }
   switchAnnotation(clickedStep);
@@ -340,9 +327,16 @@ FirstScatterplot.prototype.update =function (data) {
         var points = chart.svg.selectAll('.point') //point is used instead of circles, in case different shapes are used
           .data(firstScatterData_1, function(d) {return d.state; })
 
+        //KEEP BOTH CIRCLES THE SAME COLOR AFTER RETURNING FROM OTHER STEPS
+        points
+          .attr('class', 'point path')
+          .attr('r', function(d) { return d.poverty * 120})
+          .style("fill", "#ffa500")
+          .style("stroke", "#697fd7")
+          .style("stroke-width", "3");
+
           //IF PREVIOUSLY ON STEP TWO: 
       //REMOVE REMAINING 49 POINTS
-        
         points.exit()
           .transition()
           .duration(300)
@@ -361,7 +355,7 @@ FirstScatterplot.prototype.update =function (data) {
           .attr('r', function(d) { return d.poverty * 120})
           .attr('cx', function (d) { return chart.x(d.pp_expense_11); })
           .attr('cy', function (d) { return chart.y(d.m_all_11); })
-          .style("fill", "#a5a5a5")
+          .style("fill", "#ffa500")
           .style("stroke", "#697fd7")
           .style("stroke-width", "3") 
           .style("opacity", "1.0")
@@ -398,82 +392,91 @@ FirstScatterplot.prototype.update =function (data) {
             .tickSize(-height) 
             .tickFormat(formatThousand_x);
         chart.svg.selectAll(".axis").filter(".x")
-          .transition().duration(1000)
-          .call(chart.xAxis);
+            .transition().duration(1000)
+            .call(chart.xAxis);
         chart.svg.selectAll("g").filter(function(d) { return d;})
             .classed("no-minor", true);
 
 
-
-    //SELECTING EXISTING TWO CIRCLES AND MOVE ACCORDING TO NEW SCALE
-   //  chart.svg.selectAll('.point')
-           // .attr('class', 'step-2')
-   //         .transition().duration(1000)
-    //        .attr('cx', function (d) { return chart.x(d.pp_expense_11); })
-    //        .attr('cy', function (d) { return chart.y(d.m_all_11); });
-
-
-      //APPEND REMAINING POINTS
-
-
-
-          var points = chart.svg.selectAll('.point') //point is used instead of circles, in case different shapes are used
+        var points = chart.svg.selectAll('.point') //point is used instead of circles, in case different shapes are used
             .data(firstScatterData);
+        //NEED TO MAKE CIRCLES FOR NY AND DC STAY ORANGE
+        
 
+        //APPEND REMAINING POINTS
           points.enter().append('circle')
-        //    .transition()
-         //   .duration(1000)
-         //   .delay(function(d, i) {
-         //   return i / scatterData.length * 500;  // Dynamic delay (i.e. each item delays a little longer)
-         //   })
             .attr('class', 'point path')
             .attr('r', function(d) { return d.poverty * 120})
             .style("fill", "#a5a5a5")
             .style("stroke", "#697fd7")
             .style("stroke-width", "3") 
-    /*    .on("mouseover", function(d) { 
-        console.log(d.state)  
-          chart.tooltip.transition()        
-              .duration(200)      
-              .style("opacity", 0.8)
-          chart.tooltip.html(d["state"])
-              .style("left", (d3.event.pageX) + "px")     
-              .style("top", (d3.event.pageY - 28) + "px");
-      })
-      .on("mouseout", function(d) {       
-          chart.tooltip.html("")
-              .transition()        
-              .duration(500)      
-              .style("opacity", 0)
-
-          d3.selectAll(".path")
+        //TOOLTIP
+          .on("mouseover", function(d) { 
+            chart.tooltip.transition()        
+            .duration(200)      
+            .style("opacity", 0.8)
+            chart.tooltip.html(d["state_name"])
+            .style("left", (d3.event.pageX) + "px")     
+            .style("top", (d3.event.pageY - 28) + "px");
+          })
+          .on("mouseout", function(d) {       
+            chart.tooltip.html("")
+            .transition()        
+            .duration(500)      
+            .style("opacity", 0)
+            d3.selectAll(".path")
             .style("opacity", 0.6);
-
-      }) */ .merge(points)
+          })    
+            .merge(points)
+            .transition()
+            .duration(1000)
+            .delay(function(d, i) {
+            return i / firstScatterData.length * 500;  // Dynamic delay (i.e. each item delays a little longer)
+            })
             .attr('cx', function (d) { console.log(d); return chart.x(d.pp_expense_11); })
-            .attr('cy', function (d) { return chart.y(d.m_all_11); })
+            .attr('cy', function (d) { return chart.y(d.m_all_11); });
 
       
       points.exit().transition().remove(); 
+      console.log(points.exit().transition().remove() )
     
 
   //ELSE: STEP 3
     } else if (d3.select("#vis-container").attr("class") === "step-3") {
 
-   
 
+      //FILTER POINTS TO TOP TEN STATES WITH HIGHEST POVERTY RATE
       firstScatterData_3 = firstScatterData.sort(function(a, b) {
             return a.poverty < b.poverty ? 1: -1;
-      }) .slice(10,50);
+      }) .slice(0,10);
+
 
 
       var points = chart.svg.selectAll('.point') 
-        .data(firstScatterData_3)
+        .data(firstScatterData_3, function(d) {return d.state; })
+
+        points.enter().append('circle')
+          .attr('class', 'point path step-3')
+          .style("fill", "#a5a5a5")
+          .style("stroke", "#697fd7")
+          .style("stroke-width", "3") 
+          .style("opacity", "0.8")
+          .merge(points)
+          .transition()
+          .duration(1000)
+          .delay(function(d, i) {
+          return i / firstScatterData_3.length * 500;  
+          })
+          .attr('r', function(d) { return d.poverty * 120})
+          .attr('cx', function (d) { return chart.x(d.pp_expense_11); })
+          .attr('cy', function (d) { return chart.y(d.m_all_11); });
+
+       
        points.exit()
           .transition()
           .duration(300)
           .delay(function(d, i) {
-            return i / firstScatterData_3.length * 1000;  
+            return i / firstScatterData.length * 1000;  
           }).remove(); 
     }
     
