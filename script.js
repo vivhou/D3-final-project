@@ -147,29 +147,24 @@ d3.selectAll("a.btn").on("click", function(d) {
     if (clickedStep === 'step1') {
       console.log('1')
       d3.select("#vis-container").attr('class', 'step-1')
-        .transition().delay(300).duration(500)
         firstScatterplot.update();   
     }
     else if (clickedStep === 'step2') {
       d3.select("#vis-container").attr('class', 'step-2')
-      .transition().delay(300).duration(500)
-        .style("opacity", 1); 
         firstScatterplot.update();
     }
 
     else if (clickedStep === 'step3') {
    //   d3.select("#vis-container").attr('class', 'step-container')
       d3.select("#vis-container").attr('class', 'step-3')
-      .transition().delay(300).duration(500)
-        .style("opacity", 1);
         firstScatterplot.update();   
 
     }
      else if (clickedStep === 'step4') {
-   //   d3.select("#vis-container").attr('class', 'step-container')
-      d3.select("#vis-container").attr('class', 'step-4')
-      .transition().delay(300).duration(500)
-        .style("opacity", 1);    
+      d3.select("#vis-container")
+      .transition().delay(function(d, i) { 
+    return i*14;})
+      .attr('class', 'step-4')   
     }
   }
   switchAnnotation(clickedStep);
@@ -351,7 +346,7 @@ FirstScatterplot.prototype.update =function (data) {
           .delay(function(d, i) {
           return i / firstScatterData_1.length * 500;  
           })
-          .attr('class', 'point path step-1 step-2')
+          .attr('class', 'point path step-1 step-2 step-3')
           .attr('r', function(d) { return d.poverty * 120})
           .attr('cx', function (d) { return chart.x(d.pp_expense_11); })
           .attr('cy', function (d) { return chart.y(d.m_all_11); })
@@ -400,45 +395,67 @@ FirstScatterplot.prototype.update =function (data) {
 
         var points = chart.svg.selectAll('.point') //point is used instead of circles, in case different shapes are used
             .data(firstScatterData);
-        //NEED TO MAKE CIRCLES FOR NY AND DC STAY ORANGE
         
 
-        //APPEND REMAINING POINTS
-          points.enter().append('circle')
-            .attr('class', 'point path')
-            .attr('r', function(d) { return d.poverty * 120})
-            .style("fill", "#a5a5a5")
-            .style("stroke", "#697fd7")
-            .style("stroke-width", "3") 
-        //TOOLTIP
+
+    //CHANGE COLOR AND BRING TO FRONT WHEN MOUSEOVER
+
+        d3.selection.prototype.moveToFront = function() {  ///thanks to https://gist.github.com/trtg/3922684
+          return this.each(function(){
+          this.parentNode.appendChild(this);
+          }); 
+        };
+
+        d3.selection.prototype.moveToBack = function() { 
+          return this.each(function() { 
+          var firstChild = this.parentNode.firstChild; 
+            if (firstChild) { 
+              this.parentNode.insertBefore(this, firstChild); 
+            } 
+          }); 
+        }; 
+      
+
+      //APPEND REMAINING POINTS
+        points.enter().append('circle')
+          .attr('class', 'point path')
+          .attr('r', function(d) { return d.poverty * 120})
+          .merge(points)
+      //TOOLTIP
           .on("mouseover", function(d) { 
+            var sel = d3.select(this);
+              sel.moveToFront()
+              .style("fill", function(d) { return "#45cab2"; }) 
             chart.tooltip.transition()        
-            .duration(200)      
-            .style("opacity", 0.8)
+              .duration(200)      
+              .style("opacity", 0.8)
             chart.tooltip.html(d["state_name"])
-            .style("left", (d3.event.pageX) + "px")     
-            .style("top", (d3.event.pageY - 28) + "px");
+              .style("left", (d3.event.pageX) + "px")     
+              .style("top", (d3.event.pageY - 28) + "px");
           })
-          .on("mouseout", function(d) {       
+          .on("mouseout", function(d) {
+            var sel = d3.select(this);
+              sel.moveToBack()  
+              .style("fill", function(d) { if (d.state === "DC" || d.state == "NY") { return "#ffa500"; } 
+                else {return "#a5a5a5"; }
+              })      
             chart.tooltip.html("")
-            .transition()        
-            .duration(500)      
-            .style("opacity", 0)
+              .transition()        
+              .duration(500)      
+              .style("opacity", 0)
             d3.selectAll(".path")
-            .style("opacity", 0.6);
+              .style("opacity", 0.6);
           })    
-            .merge(points)
-            .transition()
-            .duration(1000)
-            .delay(function(d, i) {
-            return i / firstScatterData.length * 500;  // Dynamic delay (i.e. each item delays a little longer)
-            })
-            .attr('cx', function (d) { console.log(d); return chart.x(d.pp_expense_11); })
-            .attr('cy', function (d) { return chart.y(d.m_all_11); });
+          .transition()
+          .duration(1000)
+          .delay(function(d, i) {
+          return i / firstScatterData.length * 500;  // Dynamic delay (i.e. each item delays a little longer)
+          })
+          .attr('cx', function (d) { console.log(d); return chart.x(d.pp_expense_11); })
+          .attr('cy', function (d) { return chart.y(d.m_all_11); });
 
       
-      points.exit().transition().remove(); 
-      console.log(points.exit().transition().remove() )
+        points.exit().transition().remove(); 
     
 
   //ELSE: STEP 3
@@ -455,6 +472,7 @@ FirstScatterplot.prototype.update =function (data) {
       var points = chart.svg.selectAll('.point') 
         .data(firstScatterData_3, function(d) {return d.state; })
 
+
         points.enter().append('circle')
           .attr('class', 'point path step-3')
           .style("fill", "#a5a5a5")
@@ -470,7 +488,6 @@ FirstScatterplot.prototype.update =function (data) {
           .attr('r', function(d) { return d.poverty * 120})
           .attr('cx', function (d) { return chart.x(d.pp_expense_11); })
           .attr('cy', function (d) { return chart.y(d.m_all_11); });
-
        
        points.exit()
           .transition()
@@ -478,6 +495,8 @@ FirstScatterplot.prototype.update =function (data) {
           .delay(function(d, i) {
             return i / firstScatterData.length * 1000;  
           }).remove(); 
+
+          console.log(points)
     }
     
 
@@ -571,7 +590,6 @@ Choropleth.prototype.update = function () {
 
  chart.map
   .transition()
- // .duration(1250)
   .attr('class', function(d) { 
     return quantize(getValueOfData(d));
   })
