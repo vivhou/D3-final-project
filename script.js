@@ -707,7 +707,7 @@ Choropleth.prototype.update = function () {
 
   // We update the rectangles by (re)defining their position and width
   // (both based on the legend scale) and setting the correct class.
-  chart.g.selectAll("rect")
+/*  chart.g.selectAll("rect")
       .data(quantize.range().map(function(d) {
         return quantize.invertExtent(d);
       }))
@@ -720,7 +720,7 @@ Choropleth.prototype.update = function () {
       .attr('class', function(d, i) {
         return quantize.range()[i];
       });
-
+*/
   /*var keyButton = d3.select('#categories').node();
   var selectedOption = keyButton.options[keyButton.selectedIndex];
   var legendText = chart.g.selectAll('text.caption')
