@@ -8,6 +8,9 @@
 #step1 {
   margin-left: 25px;
 }
+
+a {color: #666;}
+
 /*
  All the .annotation-step divs are inside
  * #annotation-steps. z-index ensures annotations
@@ -121,6 +124,7 @@
       margin-top: 20px;
       margin-bottom: 20px;
       text-align: center;
+      color: #666
     }
 
 

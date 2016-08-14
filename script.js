@@ -13,11 +13,7 @@ var options= {
 
   //STEP 3 EVENT HANDLERS
 d3.select('#sort_math').on('click', function () {
-    //if (options.filtered === 'select_math') {
-    //  options.filtered = true;
-    //} else {
-      options.filtered = 'select_math';
-    //}
+    options.filtered = 'select_math';
     scatterplot.update();
     choropleth.update();
     d3.select('#sort_math').classed('active', true);
@@ -25,11 +21,7 @@ d3.select('#sort_math').on('click', function () {
   }); 
 
 d3.select('#sort_read').on('click', function () {
-    //if (options.filtered === 'select_reading') {
-    //  options.filtered = false;
-    //} else {
-      options.filtered = 'select_reading';
-    //}
+    options.filtered = 'select_reading';
     scatterplot.update();
     choropleth.update();
     d3.select('#sort_math').classed('active', false);
@@ -37,7 +29,23 @@ d3.select('#sort_read').on('click', function () {
   }); 
 
 
-//var currentKey = 'math_diff';
+//MOUSEOVER: MOVE POINTS TO FRONT
+
+d3.selection.prototype.moveToFront = function() {  ///thanks to https://gist.github.com/trtg/3922684
+  return this.each(function(){
+    this.parentNode.appendChild(this);
+    }); 
+  };
+
+d3.selection.prototype.moveToBack = function() { 
+  return this.each(function() { 
+  var firstChild = this.parentNode.firstChild; 
+    if (firstChild) { 
+      this.parentNode.insertBefore(this, firstChild); 
+    } 
+  }); 
+}; 
+
 
 var margin = { top: 5, right: 15, bottom: 20, left: 15 } ; 
 var width = 600 - margin.right - margin.left;
@@ -59,6 +67,8 @@ var projection = d3.geoEquirectangular()
 var path = d3.geoPath()
   .projection(projection);
    
+
+console.log("before");   
 
   queue()
     .defer(d3.json, "../state_squares.geojson")
@@ -111,17 +121,14 @@ var path = d3.geoPath()
     scatterplot = new Scatterplot(results[1]);
     scatterplot.update();
 
+console.log("hi")
     firstScatterplot = new FirstScatterplot(results[1]);
     firstScatterplot.update();
     
    
-
-   /* d3.select('#categories').on('change', function () {
-      currentKey = d3.select(this).property('value');
-      choropleth.update(results[0],results[1]);
-      scatterplot.update(results[1]);
-      });*/
     });
+
+console.log("after");
 
 //STEPPER FUNCTIONS
 
@@ -131,40 +138,85 @@ function switchStep(newStep)
   d3.select("#" + newStep).classed("active", true);
 }
 
+function switchHeader(newHeader, newParagraph) {
+  d3.select("#heading-text")
+      .style("opacity", 1)
+      .transition()
+      .duration(900)
+      .delay(500)
+      .style("opacity", 0)
+      .remove()
+    d3.select("#heading-text")
+      .style("opacity", 0)
+      .transition()
+      .duration(900)
+      .delay(500)
+      .style("opacity", 1)
+      .text(newHeader)
+  d3.select("#paragraph-text")
+      .style("opacity", 1)
+      .transition()
+      .duration(900)
+      .delay(500)
+      .style("opacity", 0)
+      .remove()
+    d3.select("#paragraph-text")
+      .style("opacity", 0)
+      .transition()
+      .duration(900)
+      .delay(500)
+      .style("opacity", 1)
+      .text(newParagraph)
+}
 
+//INITIAL STEP 1 BEFORE CLICK
 d3.select("#vis-container").attr('class', 'step-1')
-.transition().delay(300).duration(500);
+var newHeader = "Top State Spenders";
+var newParagraph = "D.C. has the smallest student population nationwide, yet, in 2011, it spent $5,978 more per student than New York, and still scored lower on fourth-grade math proficiency scores.";
+ // firstScatterplot.update();
+ console.log("2u");
+  switchHeader(newHeader, newParagraph);
 
+//BUTTON SELECTION
 d3.selectAll("a.btn").on("click", function(d) {
   var clickedStep = d3.select(this).attr("id");
   switchStep(clickedStep);
 
+//SWITCHING BETWEEN STEPS:
 
  function switchAnnotation(clickedStep) {
-  options.step = 1;
-  d3.select('#vis-container').attr('class', 'step-1')
+//  options.step = 1;
+//  d3.select('#vis-container').attr('class', 'step-1')
+//  firstScatterplot.update()
   
     if (clickedStep === 'step1') {
-      console.log('1')
       d3.select("#vis-container").attr('class', 'step-1')
+      var newHeader = "2011: Top State Spenders"
+      var newParagraph = "D.C. has the smallest student population nationwide, yet, it spent $5,978 more per student than New York, and still scored lower on fourth-grade math proficiency scores."
+        switchHeader(newHeader, newParagraph);
         firstScatterplot.update();   
     }
     else if (clickedStep === 'step2') {
       d3.select("#vis-container").attr('class', 'step-2')
+      var newHeader = "2011: State Spending vs. Test Scores";
+      var newParagraph = "While there is a modest correlation between per-pupil state funding and National Test Scores among fourth-graders, some states are an exception.";
+        switchHeader(newHeader, newParagraph);
         firstScatterplot.update();
     }
 
     else if (clickedStep === 'step3') {
    //   d3.select("#vis-container").attr('class', 'step-container')
       d3.select("#vis-container").attr('class', 'step-3')
+      var newHeader = "2011: State Spending vs. Poverty";
+      var newParagraph = "Among the top ten states with the highest poverty rate, states spent an average of $16,357 less than D.C. but performed higher on math proficiency scores by roughly 14 points. ";
+        switchHeader(newHeader, newParagraph);
         firstScatterplot.update();   
 
     }
      else if (clickedStep === 'step4') {
-      d3.select("#vis-container")
-      .transition().delay(function(d, i) { 
-    return i*14;})
-      .attr('class', 'step-4')   
+      d3.select("#vis-container").attr('class', 'step-4') 
+
+        
     }
   }
   switchAnnotation(clickedStep);
@@ -313,7 +365,7 @@ FirstScatterplot.prototype.update =function (data) {
         
   //STEP ONE: APPEND TWO CIRCLES
     
-
+//
         firstScatterData_1 = firstScatterData.filter(function(d) {
             return d.pp_expense_11 > 20000;
         })
@@ -338,9 +390,30 @@ FirstScatterplot.prototype.update =function (data) {
           .delay(function(d, i) {
             return i / firstScatterData.length * 1000;  
           }).remove(); 
+
+          console.log(points)
    
           
         points.enter().append('circle')
+        .merge(points)
+        .on("mouseover", function(d) { 
+            d3.select(this)
+              .style("fill", function(d) { return "#45cab2"; }) 
+            chart.tooltip.transition()        
+              .duration(200)      
+              .style("opacity", 0.8)
+            chart.tooltip.html(d["state_name"])
+              .style("left", (d3.event.pageX) + "px")     
+              .style("top", (d3.event.pageY - 28) + "px");
+          })
+          .on("mouseout", function(d) {
+            d3.select(this)  
+              .style("fill", "#ffa500")      
+            chart.tooltip.html("")
+              .transition()        
+              .duration(500)      
+              .style("opacity", 0)
+          })    
           .transition()
           .duration(1000)
           .delay(function(d, i) {
@@ -353,8 +426,11 @@ FirstScatterplot.prototype.update =function (data) {
           .style("fill", "#ffa500")
           .style("stroke", "#697fd7")
           .style("stroke-width", "3") 
-          .style("opacity", "1.0")
+          .style("opacity", 0.9);
 
+
+          
+          
   
       //TRANSITION POINTS BACK TO ORIGINAL X-SCALE
         chart.svg.selectAll('.point')
@@ -362,7 +438,7 @@ FirstScatterplot.prototype.update =function (data) {
           .attr('cx', function (d) { return chart.x(d.pp_expense_11); })
           .attr('cy', function (d) { return chart.y(d.m_all_11); }); 
 
-      points.exit().remove();
+        points.exit().remove();
     
     //ELSE: STEP 2
   } else if (d3.select("#vis-container").attr("class") === "step-2") {
@@ -394,29 +470,11 @@ FirstScatterplot.prototype.update =function (data) {
 
 
         var points = chart.svg.selectAll('.point') //point is used instead of circles, in case different shapes are used
-            .data(firstScatterData);
-        
+            .data(firstScatterData, function(d) { return d.state; });
 
-
-    //CHANGE COLOR AND BRING TO FRONT WHEN MOUSEOVER
-
-        d3.selection.prototype.moveToFront = function() {  ///thanks to https://gist.github.com/trtg/3922684
-          return this.each(function(){
-          this.parentNode.appendChild(this);
-          }); 
-        };
-
-        d3.selection.prototype.moveToBack = function() { 
-          return this.each(function() { 
-          var firstChild = this.parentNode.firstChild; 
-            if (firstChild) { 
-              this.parentNode.insertBefore(this, firstChild); 
-            } 
-          }); 
-        }; 
-      
 
       //APPEND REMAINING POINTS
+
         points.enter().append('circle')
           .attr('class', 'point path')
           .attr('r', function(d) { return d.poverty * 120})
@@ -438,13 +496,15 @@ FirstScatterplot.prototype.update =function (data) {
               sel.moveToBack()  
               .style("fill", function(d) { if (d.state === "DC" || d.state == "NY") { return "#ffa500"; } 
                 else {return "#a5a5a5"; }
-              })      
+              })  
+              .style("opacity", function(d) { if (d.state === "DC" || d.state == "NY") { return 0.9; } 
+                else {return 0.7; }
+              })     
             chart.tooltip.html("")
               .transition()        
               .duration(500)      
               .style("opacity", 0)
-            d3.selectAll(".path")
-              .style("opacity", 0.6);
+           
           })    
           .transition()
           .duration(1000)
@@ -466,6 +526,8 @@ FirstScatterplot.prototype.update =function (data) {
       firstScatterData_3 = firstScatterData.sort(function(a, b) {
             return a.poverty < b.poverty ? 1: -1;
       }) .slice(0,10);
+
+      console.log(firstScatterData_3)
 
 
 
@@ -522,13 +584,14 @@ function Choropleth(states) {
   .attr('class', 'features YlGnBu')
 
   
-
-  chart.svg = d3.select("#chart3")
   chart.map = chart.mapFeatures.selectAll('path')
     .data(states.features)
     .enter().append('path')
     .attr('class', 'path')
-    .attr('d', path);
+    .attr('d', path)
+
+
+
 
 //LEGEND
   chart.legendSvg = d3.select('#legend').append('svg')
@@ -706,17 +769,23 @@ Choropleth.prototype.update = function () {
             .html("State" + ": <b>" + d.properties.state_name + "</b><br /> <u>" + 
               "% Change in " + selectedButton() + " Proficiency" + "</u>:<b> " + 
               format(getValueOfData(d)) + "%" + "</b>");
-  chart.map
-       // var id = chart.states.features[i].properties.abbr
-        var id = d.properties.state_name
-        console.log(scatterData[i].state_name)
-        d3.selectAll(".path")
-            .style("opacity", function(d) {
-             return d.state_name == id ? 1 : 0.2;
-            })
-            .style("stroke", function(d) {
-             return d.state_name == id ? 1 : 0.2;
-            });
+        chart.map
+              var id = d.properties.state_name
+              var matchingPts = d3.selectAll('.path')
+              .filter(function(d) { return d.state_name == id; });
+              matchingPts
+                .transition()
+                .duration(300)
+                .attr('r', 9) //make corresponding circles stand out 
+              d3.selectAll('.path')
+                  .style("opacity", function(d) {
+                    console.log(d.state_name == id)
+                   return d.state_name == id ? 1 : 0.2;
+                  })
+                  .style("stroke", function(d) {
+                   return d.state_name == id ? 1 : 0.2;
+                  });
+
 
       })        
       .on("mouseout", function(d) {       
@@ -726,7 +795,8 @@ Choropleth.prototype.update = function () {
               .style("opacity", 0)
 
           d3.selectAll(".path")
-            .style("opacity", 0.6);
+            .style("opacity", 0.6)
+            .attr('r', 7); //restore radius size
       });
 
 }
