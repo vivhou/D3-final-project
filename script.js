@@ -169,8 +169,8 @@ function switchHeader(newHeader, newParagraph) {
 
 //INITIAL STEP 1 BEFORE CLICK
 d3.select("#vis-container").attr('class', 'step-1')
-var newHeader = "Top State Spenders";
-var newParagraph = "D.C. has the smallest student population nationwide, yet, in 2011, it spent $5,978 more per student than New York, and still scored lower on fourth-grade math proficiency scores.";
+var newHeader = "2011: Top State Spenders";
+var newParagraph = "D.C. has the smallest student population nationwide, yet, it spent $5,978 more per student than New York, and still scored lower on fourth-grade math proficiency scores.";
  // firstScatterplot.update();
  console.log("2u");
   switchHeader(newHeader, newParagraph);
@@ -1083,7 +1083,7 @@ function circleFill (d) {
     .text(function(d) {
          return d.race;
       })
-    .style("fill", "#000");
+    .style("fill", "#696969");
 
     //TOOLTIP
 

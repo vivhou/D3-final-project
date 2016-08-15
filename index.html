@@ -22,10 +22,10 @@
   </div>
 <!--Step navigation UI -->
 <div id = "vis-nav">
-  <a href="#" id="step1" class="step-link btn btn-info active"> Step1</a>
-  <a href="#" id="step2" class="step-link btn btn-info">Step2</a>
-  <a href="#" id="step3" class="step-link btn btn-info">Step3</a>
-  <a href="#" id="step4" class="step-link btn btn-info">Step4</a>
+  <a href="#" id="step1" class="step-link btn btn-warning active"> Step1</a>
+  <a href="#" id="step2" class="step-link btn btn-warning">Step2</a>
+  <a href="#" id="step3" class="step-link btn btn-warning">Step3</a>
+  <a href="#" id="step4" class="step-link btn btn-warning">Step4</a>
 </div>
 <!-- Container for visualization -->
 <div id="vis-container">
@@ -36,8 +36,8 @@
             <div class="col-md-4 col-sm-4 col-xs-4">
                 <h2 id="heading-text">Top State Spenders</h2>
                 <p id="paragraph-text">D.C. has the smallest student population nationwide, yet, in 2011, it spent $5,978 more per student than New York, and still scored lower on fourth-grade math proficiency scores.</p>
-             
-             
+                <br />
+                <p class="note">*Circles are sized by poverty rate<br /> *Statewide per-pupil expenditure includes the total current expenditures for K-12 education divided by fall student membership</p>
                 
             </div>
             <div class="col-md-8 col-sm-8 col-xs-8">
@@ -58,25 +58,21 @@
                 </div> 
               </div>
               <div class="row">
-                <div class="col-md-4 col-sm-4 col-xs-4">
-                </div>
-                <div class="col-md-3 col-sm-3 col-xs-3">
-                  <div class="controls section">
-                    <label for="categories" class="category-label">Select one: 
-                    </label>
-                  <div class="svg-container">
-                  <div id="tab" class="btn-group" data-toggle="buttons">
-                      <button type="button" class="btn btn-info active" id="sort_math" value="m_diff" autocomplete="off" checked="" data-toggle="tab">Math
-                      </button>            
-                      <button type="button" class="btn btn-info" id="sort_read" value="r_diff" autocomplete="off" data-toggle="tab">Reading
-                    </button>
-                  </div>
-                </div>
-                  </div>
-                </div>
                 <div class="col-md-3 col-sm-3 col-xs-3">
                 </div>
-                
+                <div class="col-md-6 col-sm-6 col-xs-6">
+                  <p><b>Comparing 2011 vs. 2015:</b> The left graph below displays the change in the percentage of students who reach "proficiency levels" by state, while the graph on the right factors in race when evaluating per pupil expense and test score differences from 2005 to 2011. We can see by hovering over each state that gaps in scores among races persist, regardless of the amount that is spent on each student.</p>
+                </div>
+                <div class="col-md-3 col-sm-3 col-xs-3 controls-section">
+                    <div class="svg-container">
+                      <div id="tab" class="btn-group controls-section" data-toggle="buttons">
+                        <button type="button" class="btn btn-secondary active" id="sort_math" value="m_diff" autocomplete="off" checked="" data-toggle="tab">Math
+                        </button>            
+                        <button type="button" class="btn btn-secondary" id="sort_read" value="r_diff" autocomplete="off" data-toggle="tab">Reading
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div> 
           </div>
         </div>
