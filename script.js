@@ -234,7 +234,7 @@ FirstScatterplot = function (data) {
       .classed("svg-container", true)
       .append("svg")
       .attr("preserveAspectRatio", "xMinYMin meet")
-      .attr("viewBox", "0 0 600 500")
+      .attr("viewBox", "0 -10 600 500")
       .classed("svg-content-responsive", true)
      // .attr('width', width + margin.left + margin.right)
      // .attr('height', height + margin.top + margin.bottom)
@@ -519,34 +519,85 @@ FirstScatterplot.prototype.update =function (data) {
   //ELSE: STEP 3
     } else if (d3.select("#vis-container").attr("class") === "step-3") {
 
+      //CHANGE DOMAIN OF X-AXIS
+       x1 = d3.max(chart.data, function (d) { 
+          return parseInt(d.pp_expense_11*1.05); //need to multiply by 1.05 to extend x-axis and keep circle on graph
+        })
+        chart.x.domain([0, x1])  
+        var formatThousand = d3.format(".2s");
+        var formatThousand_x = function(d) { if (d > 0) {
+          return "$" + formatThousand(d/1000) + "k"; }
+        };
+
+      //CHANGING X-AXIS
+
+        var formatPoints = d3.format("");
+        chart.xAxis = d3.axisBottom()
+            .scale(chart.x)
+            .ticks(10)
+            //.orient("top")
+            .tickSize(-height) 
+            .tickFormat(formatThousand_x);
+        chart.svg.selectAll(".axis").filter(".x")
+            .transition().duration(1000)
+            .call(chart.xAxis);
+        chart.svg.selectAll("g").filter(function(d) { return d;})
+            .classed("no-minor", true);
+
+
 
       //FILTER POINTS TO TOP TEN STATES WITH HIGHEST POVERTY RATE
+
       firstScatterData_3 = firstScatterData.sort(function(a, b) {
             return a.poverty < b.poverty ? 1: -1;
       }) .slice(0,10);
 
-      console.log(firstScatterData_3)
-
-
 
       var points = chart.svg.selectAll('.point') 
         .data(firstScatterData_3, function(d) {return d.state; })
-
 
         points.enter().append('circle')
           .attr('class', 'point path step-3')
           .style("fill", "#a5a5a5")
           .style("stroke", "#697fd7")
           .style("stroke-width", "3") 
-          .style("opacity", "0.8")
+          .style("opacity", "0.7")
           .merge(points)
+           //TOOLTIP
+          .on("mouseover", function(d) { 
+            var sel = d3.select(this);
+            console.log(sel.moveToFront())
+              sel.moveToFront()
+              .style("fill", function(d) { return "#45cab2"; }) 
+            chart.tooltip.transition()        
+              .duration(200)      
+              .style("opacity", 0.8)
+            chart.tooltip.html(d["state_name"])
+              .style("left", (d3.event.pageX) + "px")     
+              .style("top", (d3.event.pageY - 28) + "px");
+          })
+          .on("mouseout", function(d) {
+            var sel = d3.select(this);
+              sel.moveToBack()  
+              .style("fill", function(d) { if (d.state === "DC" || d.state == "NY") { return "#ffa500"; } 
+                else {return "#a5a5a5"; }
+              })  
+              .style("opacity", function(d) { if (d.state === "DC" || d.state == "NY") { return 0.9; } 
+                else {return 0.7; }
+              })     
+            chart.tooltip.html("")
+              .transition()        
+              .duration(500)      
+              .style("opacity", 0)
+           
+          })    
           .transition()
           .duration(1000)
           .delay(function(d, i) {
           return i / firstScatterData_3.length * 500;  
           })
           .attr('r', function(d) { return d.poverty * 120})
-          .attr('cx', function (d) { return chart.x(d.pp_expense_11); })
+          .attr('cx', function (d) { console.log(d); return chart.x(d.pp_expense_11); })
           .attr('cy', function (d) { return chart.y(d.m_all_11); });
        
        points.exit()
@@ -708,7 +759,7 @@ Choropleth.prototype.update = function () {
 
   // We update the rectangles by (re)defining their position and width
   // (both based on the legend scale) and setting the correct class.
-/*  chart.g.selectAll("rect")
+  chart.g.selectAll("rect")
       .data(quantize.range().map(function(d) {
         return quantize.invertExtent(d);
       }))
@@ -721,11 +772,8 @@ Choropleth.prototype.update = function () {
       .attr('class', function(d, i) {
         return quantize.range()[i];
       });
-*/
-  /*var keyButton = d3.select('#categories').node();
-  var selectedOption = keyButton.options[keyButton.selectedIndex];
-  var legendText = chart.g.selectAll('text.caption')
-      .text(selectedOption.text); */
+
+
 
   //RETRIEVING TEXT OF BUTTON FOR TOOLTIP AND LEGEND
 
@@ -765,29 +813,28 @@ Choropleth.prototype.update = function () {
               .style("left", (d3.event.pageX) + "px")     
               .style("top", (d3.event.pageY - 28) + "px");
 
-        chart.tooltip.append("p")
+          chart.tooltip.append("p")
             .attr("class", "tooltip_text")
             .html("State" + ": <b>" + d.properties.state_name + "</b><br /> <u>" + 
               "% Change in " + selectedButton() + " Proficiency" + "</u>:<b> " + 
               format(getValueOfData(d)) + "%" + "</b>");
-        chart.map
+          chart.map
               var id = d.properties.state_name
               var matchingPts = d3.selectAll('.path')
-              .filter(function(d) { return d.state_name == id; });
-              matchingPts
-                .transition()
-                .duration(300)
-                .attr('r', 9) //make corresponding circles stand out 
-              d3.selectAll('.path')
-                  .style("opacity", function(d) {
-                    console.log(d.state_name == id)
-                   return d.state_name == id ? 1 : 0.2;
-                  })
-                  .style("stroke", function(d) {
-                   return d.state_name == id ? 1 : 0.2;
-                  });
-
-
+              .filter(function(d) { return d.state_name == id; })
+          matchingPts
+              .moveToFront()
+              .transition()
+              .duration(300)
+              .attr('r', 9) //make corresponding circles stand out 
+            d3.selectAll('.path')
+                .style("opacity", function(d) {
+                  console.log(d.state_name == id)
+                 return d.state_name == id ? 1 : 0.2;
+                })
+                .style("stroke", function(d) {
+                 return d.state_name == id ? 1 : 0.2;
+                });
       })        
       .on("mouseout", function(d) {       
           chart.tooltip.html("")
@@ -795,7 +842,8 @@ Choropleth.prototype.update = function () {
               .duration(500)      
               .style("opacity", 0)
 
-          d3.selectAll(".path")
+          matchingPts
+            .moveToBack()
             .style("opacity", 0.6)
             .attr('r', 7); //restore radius size
       });
