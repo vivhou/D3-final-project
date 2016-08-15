@@ -48,8 +48,8 @@ d3.selection.prototype.moveToBack = function() {
 
 
 var margin = { top: 5, right: 15, bottom: 20, left: 15 } ; 
-var width = 600 - margin.right - margin.left;
-    height = 480 - margin.top - margin.bottom;
+var width = 500 - margin.right - margin.left;
+    height = 420 - margin.top - margin.bottom;
 
 // We prepare a quantize scale to categorize the values in 9 groups.
 // The scale returns text values which can be used for the color CSS
@@ -67,8 +67,6 @@ var projection = d3.geoEquirectangular()
 var path = d3.geoPath()
   .projection(projection);
    
-
-console.log("before");   
 
   queue()
     .defer(d3.json, "../state_squares.geojson")
@@ -236,7 +234,7 @@ FirstScatterplot = function (data) {
       .classed("svg-container", true)
       .append("svg")
       .attr("preserveAspectRatio", "xMinYMin meet")
-      .attr("viewBox", "0 -10 600 500")
+      .attr("viewBox", "0 0 600 500")
       .classed("svg-content-responsive", true)
      // .attr('width', width + margin.left + margin.right)
      // .attr('height', height + margin.top + margin.bottom)
@@ -574,7 +572,7 @@ function Choropleth(states) {
       .classed("svg-container", true)
       .append("svg")
       .attr("preserveAspectRatio", "xMinYMin meet")
-      .attr("viewBox", "0 0 600 500")
+      .attr("viewBox", "-70 0 700 700")
       .classed("svg-content-responsive", true);
    // .attr('width', width + margin.left + margin.right)
    // .attr('height', height + margin.top + margin.bottom);
@@ -594,9 +592,12 @@ function Choropleth(states) {
 
 
 //LEGEND
-  chart.legendSvg = d3.select('#legend').append('svg')
-    .attr('width', '100%')
-    .attr('height', '50');
+  chart.legendSvg = d3.select('#legend')
+    .classed("svg-container", true)
+    .append('svg')
+    .attr("preserveAspectRatio", "xMinYMin meet")
+    .attr("viewBox", "-30 0 600 600")
+    .classed("svg-content-responsive", true);
 
   chart.g = chart.legendSvg.append('g')
     .attr("class", "legend-key YlGnBu")
@@ -1001,14 +1002,15 @@ function circleFill (d) {
         { race: "Black", color: "#ffa500" }
       ]
 
-    chart.legendScatter = d3.select('#scatter_legend').append('svg')
-      .attr('width', '100%')
-      .attr('height', '100');
+    chart.legendScatter = d3.select('#scatter_legend')
+      .append('svg')
+      .attr("viewBox", "0 0 500 500")
+      .classed("svg-content-responsive", true);
 
 
     chart.g = chart.legendScatter.append("g")
       .attr("class", "legend")
-      .attr('transform', 'translate(' + -50 + ',' + 30 + ')');    
+      .attr('transform', 'translate(' + -80 + ',' + 30 + ')');    
       
     
     chart.g.selectAll('rect')
