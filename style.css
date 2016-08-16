@@ -46,7 +46,7 @@ a {color: #666;}
 .annotation {
   position: absolute;
 }
-
+    
 
 
     h1 {
@@ -60,7 +60,7 @@ a {color: #666;}
       text-align: center;
       font-size: 18px;
       color: #697fd7;
-      margin-top: 90px;
+      margin-top: 10px;
       font-weight: bold;
 
     }
@@ -69,6 +69,7 @@ a {color: #666;}
       background-color: #e8eea8;
       font-family: Lato;
       color: #696969;
+      display: table;
     }
 
     .note {
@@ -76,9 +77,11 @@ a {color: #666;}
       font-style: italic;
       font-weight: bold;
       font-size: 10px;
-      margin-top: 10px;
-      margin-bottom: 10px;
       text-align: left;
+      position: fixed;
+      display: block;
+      bottom: 0;
+      left: 15;
 
     }
 
@@ -138,6 +141,7 @@ a {color: #666;}
       font-size: 12px;
       pointer-events: none;
       font-color: #696969;
+      align: left;
 
 
     }
@@ -248,6 +252,11 @@ a {color: #666;}
       stroke-width: 2;
     }
 
+    .point2 {
+      stroke: none;
+      opacity: 0.7;
+    }
+
     .svg-container {
     display: inline-block;
     position: absolute;
@@ -265,7 +274,7 @@ a {color: #666;}
 
   .controls-section {
     position: relative;
-    bottom:-50px;
+    bottom:-40px;
   
   }
 
@@ -274,4 +283,10 @@ a {color: #666;}
     color: #fff;
   }
 
-
+  .btn-warning {
+    background-color: #ffa500;
+    margin-bottom: 5px;
+  }
+  #heading-text {
+    margin-top: 50px;
+  }

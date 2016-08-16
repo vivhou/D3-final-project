@@ -136,6 +136,8 @@ function switchStep(newStep)
   d3.select("#" + newStep).classed("active", true);
 }
 
+//SWITCH TEXT BETWEEN STEPS
+
 function switchHeader(newHeader, newParagraph) {
   d3.select("#heading-text")
       .style("opacity", 1)
@@ -212,9 +214,9 @@ d3.selectAll("a.btn").on("click", function(d) {
 
     }
      else if (clickedStep === 'step4') {
-      d3.select("#vis-container").attr('class', 'step-4') 
-
-        
+      d3.select("#vis-container").attr('class', 'step-4')
+      choropleth.update();
+      scatterplot.update();
     }
   }
   switchAnnotation(clickedStep);
@@ -424,10 +426,7 @@ FirstScatterplot.prototype.update =function (data) {
           .style("fill", "#ffa500")
           .style("stroke", "#697fd7")
           .style("stroke-width", "3") 
-          .style("opacity", 0.9);
-
-
-          
+          .style("opacity", 0.9);  
           
   
       //TRANSITION POINTS BACK TO ORIGINAL X-SCALE
@@ -441,12 +440,12 @@ FirstScatterplot.prototype.update =function (data) {
     //ELSE: STEP 2
   } else if (d3.select("#vis-container").attr("class") === "step-2") {
 
-
+      //EXPAND X-AXIS DOMAIN
         x1 = d3.max(chart.data, function (d) { 
           return parseInt(d.pp_expense_11*1.05); //need to multiply by 1.05 to extend x-axis and keep circle on graph
         })
         chart.x.domain([0, x1])  
-        var formatThousand = d3.format(".2s");
+        var formatThousand = d3.format(".0s");
         var formatThousand_x = function(d) { if (d > 0) {
           return "$" + formatThousand(d/1000) + "k"; }
         };
@@ -456,7 +455,7 @@ FirstScatterplot.prototype.update =function (data) {
         var formatPoints = d3.format("");
         chart.xAxis = d3.axisBottom()
             .scale(chart.x)
-            .ticks(10)
+       //     .ticks(10)
             //.orient("top")
             .tickSize(-height) 
             .tickFormat(formatThousand_x);
@@ -524,7 +523,7 @@ FirstScatterplot.prototype.update =function (data) {
           return parseInt(d.pp_expense_11*1.05); //need to multiply by 1.05 to extend x-axis and keep circle on graph
         })
         chart.x.domain([0, x1])  
-        var formatThousand = d3.format(".2s");
+        var formatThousand = d3.format(".0s");
         var formatThousand_x = function(d) { if (d > 0) {
           return "$" + formatThousand(d/1000) + "k"; }
         };
@@ -660,6 +659,8 @@ function Choropleth(states) {
     }))
   .enter().append("rect");
 
+
+
 // For the legend, we prepare a very simple linear scale. Domain and
 // range will be set later as they depend on the data currently shown.
 
@@ -672,13 +673,12 @@ function Choropleth(states) {
  // .orient("bottom")
   .tickSize(13);
 
-
   chart.g.append("text")
       .attr("class", "caption")
       .attr("y", -6)
       .attr("x", 100)
 
-  chart.legendWidth = d3.select('#chart3').node().getBoundingClientRect().width/2 - margin.right - margin.left;
+  chart.legendWidth = 150;
 
 //TOOLTIP
 
@@ -698,27 +698,29 @@ Choropleth.prototype.update = function () {
 
  var chart = this;
 
- quantize.domain([
-    d3.min(chart.states.features, function(d) { return getValueOfData(d); }),
-    d3.max(chart.states.features, function(d) { return getValueOfData(d); })
-  ]);
+ if (d3.select("#vis-container").attr("class") === "step-4") {
 
- chart.map
-  .transition()
-  .attr('class', function(d) { 
-    return quantize(getValueOfData(d));
-  })
-  .style('stroke', function(d) {
-    if (d.properties['poverty'] >= .156) {
-      return "#545454"};
-  })
+   quantize.domain([
+      d3.min(chart.states.features, function(d) { return getValueOfData(d); }),
+      d3.max(chart.states.features, function(d) { return getValueOfData(d); })
+    ]);
 
-  .style('stroke-width', function(d) {
-    if (d.properties['poverty'] >= .156) {return "3px"};
-  })
-  .delay(function(d, i) { 
-    return i*14;
-  });
+   chart.map
+    .transition()
+    .attr('class', function(d) { 
+      return quantize(getValueOfData(d));
+    })
+    .style('stroke', function(d) {
+      if (d.properties['poverty'] >= .156) {
+        return "#545454"};
+    })
+
+    .style('stroke-width', function(d) {
+      if (d.properties['poverty'] >= .156) {return "3px"};
+    })
+    .delay(function(d, i) { 
+      return i*20;
+    });
 
 //UPDATING LEGEND
 
@@ -730,123 +732,121 @@ Choropleth.prototype.update = function () {
   // and we need to map the category values (q0-9, ..., q8-9) to the
   // number values. To do this, we can use invertExtent().
 
-  chart.legendDomain = quantize.range().map(function(d) {
-      var r = quantize.invertExtent(d);
-      return r[1];
-  });
+    chart.legendDomain = quantize.range().map(function(d) {
+        var r = quantize.invertExtent(d);
+        return r[1];
+    });
 
   // Since we always only took the upper limit of the category, we also
   // need to add the lower limit of the very first category to the top
   // of the domain.
 
-  chart.legendDomain.unshift(quantize.domain()[0]);
+    chart.legendDomain.unshift(quantize.domain()[0]);
 
   // We set the domain and range for the x scale of the legend. The
   // domain is the same as for the quantize scale and the range takes up
   // all the space available to draw the legend.
-  chart.legendX
-    .domain(quantize.domain())
-    .range([0, chart.legendWidth]);
+    chart.legendX
+      .domain(quantize.domain())
+      .range([0, chart.legendWidth]);
 
   // On smaller screens, there is not enough room to show all 10
   // category values. In this case, we add a filter leaving only every
   // third value of the domain.
-  if (chart.legendWidth < 400) {
-      chart.legendDomain = chart.legendDomain.filter(function(d, i) {
-        return i % 3 == 0;
-      });
+    if (chart.legendWidth < 400) {
+        chart.legendDomain = chart.legendDomain.filter(function(d, i) {
+          return i % 3 == 0;
+        });
     }    
 
   // We update the rectangles by (re)defining their position and width
   // (both based on the legend scale) and setting the correct class.
-  chart.g.selectAll("rect")
+    chart.g.selectAll("rect")
       .data(quantize.range().map(function(d) {
         return quantize.invertExtent(d);
       }))
       .attr("height", 8)
-      .attr("x", function(d) 
-{               console.log(chart.legendX(d[0])-chart.legendX(d[1]));
- 
-        return chart.legendX(d[0]); })
+      .attr("x", function(d){       
+        return chart.legendX(d[0]); 
+      })
       .attr("width", function(d) { return chart.legendX(d[1]) - chart.legendX(d[0]); })
       .attr('class', function(d, i) {
         return quantize.range()[i];
       });
 
 
-
   //RETRIEVING TEXT OF BUTTON FOR TOOLTIP AND LEGEND
 
-  function selectedButton() {
-    if (options.filtered === 'select_math') {
-      return document.getElementById("sort_math").textContent;
-    } else {
-      return document.getElementById("sort_read").textContent;
-      }
-  }
+    function selectedButton() {
+      if (options.filtered === 'select_math') {
+        return document.getElementById("sort_math").textContent;
+      } else {
+        return document.getElementById("sort_read").textContent;
+        }
+    }
 
 //ADDING LEGEND LABEL
 
-  var legendText = chart.g.selectAll('text.caption')
-      .text("Percent Change in " + selectedButton() + "Profiency" );
+    var legendText = chart.g.selectAll('text.caption')
+        .text("Percent Change in " + selectedButton() + "Profiency" );
 
 
-  // We set the calculated domain as tickValues for the legend axis.
-  chart.legendXAxis
-    .tickValues(chart.legendDomain)
+    // We set the calculated domain as tickValues for the legend axis.
+    chart.legendXAxis
+      .tickValues(chart.legendDomain)
 
-  chart.g
-  .transition()
-  .duration(1000)
-  .call(chart.legendXAxis);
+    chart.g
+    .transition()
+    .duration(1000)
+    .call(chart.legendXAxis);
 
 
   //TOOLTIP
 
 
-  format = d3.format(",d");
-  chart.map
-      .on("mouseover", function(d, i) {   
-          chart.tooltip.transition()        
-              .duration(200)      
-              .style("opacity", 0.8)
-              .style("left", (d3.event.pageX) + "px")     
-              .style("top", (d3.event.pageY - 28) + "px");
+    format = d3.format(",d");
+    chart.map
+        .on("mouseover", function(d, i) {   
+            chart.tooltip.transition()        
+                .duration(200)      
+                .style("opacity", 0.8)
+                .style("left", (d3.event.pageX) + "px")     
+                .style("top", (d3.event.pageY - 28) + "px");
 
-          chart.tooltip.append("p")
-            .attr("class", "tooltip_text")
-            .html("State" + ": <b>" + d.properties.state_name + "</b><br /> <u>" + 
-              "% Change in " + selectedButton() + " Proficiency" + "</u>:<b> " + 
-              format(getValueOfData(d)) + "%" + "</b>");
-          chart.map
-              var id = d.properties.state_name
-              var matchingPts = d3.selectAll('.path')
-              .filter(function(d) { return d.state_name == id; })
-          matchingPts
-              .moveToFront()
-              .transition()
-              .duration(300)
-              .attr('r', 9) //make corresponding circles stand out 
+            chart.tooltip.append("p")
+              .attr("class", "tooltip_text")
+              .html("State" + ": <b>" + d.properties.state_name + "</b><br /> <u>" + 
+                "% Change in " + selectedButton() + " Proficiency" + "</u>:<b> " + 
+                format(getValueOfData(d)) + "%" + "</b>");
+            chart.map
+                var id = d.properties.state_name
+                var matchingPts = d3.selectAll('.path')
+                .filter(function(d) { return d.state_name == id; })
+            matchingPts
+                .moveToFront()
+                .transition()
+                .duration(300)
+                .attr('r', 9) //make corresponding circles stand out 
+              d3.selectAll('.path')
+                  .style("opacity", function(d) {
+                    console.log(d.state_name == id)
+                   return d.state_name == id ? 1 : 0.2;
+                  })
+                  .style("stroke", function(d) {
+                   return d.state_name == id ? 1 : 0.2;
+                  });
+        })        
+        .on("mouseout", function(d) {       
+            chart.tooltip.html("")
+                .transition()        
+                .duration(500)      
+                .style("opacity", 0)
             d3.selectAll('.path')
-                .style("opacity", function(d) {
-                  console.log(d.state_name == id)
-                 return d.state_name == id ? 1 : 0.2;
-                })
-                .style("stroke", function(d) {
-                 return d.state_name == id ? 1 : 0.2;
-                });
-      })        
-      .on("mouseout", function(d) {       
-          chart.tooltip.html("")
-              .transition()        
-              .duration(500)      
-              .style("opacity", 0)
-
-          matchingPts
-            .moveToBack()
-            .style("opacity", 0.6)
-            .attr('r', 7); //restore radius size
-      });
+              .moveToBack()
+              .style("opacity", 0.6)
+              .attr('r', 7); //restore radius size
+        });
+  }
 
 }
 
@@ -875,7 +875,7 @@ function circleFill (d) {
 
 
 
- function Scatterplot(data) {
+function Scatterplot(data) {
     var chart = this;
 
     chart.data = data
@@ -914,12 +914,16 @@ function circleFill (d) {
 
     // AXES
 
-    var formatThousand = d3.format(".2s");
+    var formatThousand = d3.format(".0s");
     var formatThousand_x = function(d) { if (d > 0) {
       return "+$" + formatThousand(d/1000) + "k"; }
     };
 
-    var formatPoints = d3.format("");
+    var formatPoint = d3.format("")
+    var formatPoints = function(d) { if (d > 0) {
+      return "+" + formatPoint(d); }
+      else { return formatPoint(d); }
+    };
 
     chart.xAxis = d3.axisBottom()
         .scale(chart.x)
@@ -953,7 +957,7 @@ function circleFill (d) {
         .attr("transform", "translate(" + (width /2) + " ," + (height/18) + ")")
         .style("fill", "black")
         .attr("text-anchor", "middle")
-        .text("Per-Pupil Expense Difference");
+        .text("Per-Pupil Expense Increase");
 
 
 
@@ -982,64 +986,27 @@ function circleFill (d) {
 
   //Creating new Dataset
 
-  for (var i = 0; i < chart.data.length; i++) {
-    scatterData.push({state: chart.data[i].state,
-       state_name: chart.data[i].state_name,
-       pp_diff: chart.data[i].pp_diff,
-       race: "white",
-       m_diff: chart.data[i].m_diff_white,
-       r_diff: chart.data[i].r_diff_white})
-    scatterData.push({state: chart.data[i].state,
-       state_name: chart.data[i].state_name,
-       pp_diff: chart.data[i].pp_diff,
-       race: "black",
-       m_diff: chart.data[i].m_diff_black,
-       r_diff: chart.data[i].r_diff_black})
-    scatterData.push({state: chart.data[i].state,
-       state_name: chart.data[i].state_name,
-       pp_diff: chart.data[i].pp_diff,
-       race: "his",
-       m_diff: chart.data[i].m_diff_his,
-       r_diff: chart.data[i].r_diff_his})
-  }
+    for (var i = 0; i < chart.data.length; i++) {
+      scatterData.push({state: chart.data[i].state,
+         state_name: chart.data[i].state_name,
+         pp_diff: chart.data[i].pp_diff,
+         race: "white",
+         m_diff: chart.data[i].m_diff_white,
+         r_diff: chart.data[i].r_diff_white})
+      scatterData.push({state: chart.data[i].state,
+         state_name: chart.data[i].state_name,
+         pp_diff: chart.data[i].pp_diff,
+         race: "black",
+         m_diff: chart.data[i].m_diff_black,
+         r_diff: chart.data[i].r_diff_black})
+      scatterData.push({state: chart.data[i].state,
+         state_name: chart.data[i].state_name,
+         pp_diff: chart.data[i].pp_diff,
+         race: "his",
+         m_diff: chart.data[i].m_diff_his,
+         r_diff: chart.data[i].r_diff_his})
+    }
 
-
-    chart.points = chart.svg.selectAll('.point') //point is used instead of circles, in case different shapes are used
-      .data(scatterData);
-
-    chart.points.enter().append('circle')
-      .transition()
-      .duration(1000)
-      .delay(function(d, i) {
-      return i / scatterData.length * 500;  // Dynamic delay (i.e. each item delays a little longer)
-      })
-      .attr('class', 'point path')
-      .attr('r', 7)
-      .attr('cx', function (d) { return chart.x(d.pp_diff * (-1)); })
-      .attr('cy', function (d) { 
-        if (options.filtered === 'select_math') {
-          return chart.y(d.m_diff)
-        } else {
-          return chart.y(d.r_diff)
-        }
-        //return chart.y(filterData(d)); 
-      })
-      .style('opacity', function(d) {
-        if (d.r_diff == 0) {return "0";}
-       // if (isNaN(d.r_diff)) {return "0";}
-        else { if (d.m_diff == 0) {return "0";}
-      }
-        return "0.6";
-      })
-      .style("fill", circleFill)
-      .style("stroke", function (d) {
-      if ((options.filtered != 'select_math' && d.r_diff < 0) || (options.filtered === 'select_math' && d.m_diff < 0)) { 
-        return "#cc0000";
-      } else {
-          return "#697fd7";
-      } 
-    })
-      .style("stroke-width", "2.5")
 
   //LEGEND
 
@@ -1078,24 +1045,18 @@ function circleFill (d) {
       .data(colors)
       .enter()
       .append("text")
-    .attr("x", width - 42)
+      .attr("x", width - 42)
       .attr("y", function(d, i){ return i *  20 + 12 ;})
-    .text(function(d) {
+      .text(function(d) {
          return d.race;
       })
-    .style("fill", "#696969");
+      .style("fill", "#696969");
 
     //TOOLTIP
 
     chart.tooltip = d3.select("body").append("div")   
-          .attr("class", "tooltip")               
-          .style("opacity", 0);
-
-
-
-    chart.update();
-  
-
+      .attr("class", "tooltip")               
+      .style("opacity", 0);
 
   }
 
@@ -1105,36 +1066,73 @@ Scatterplot.prototype.update = function() {
 //idea inspired by http://bl.ocks.org/WilliamQLiu/bd12f73d0b79d70bfbae
   var chart = this;
 
-  chart.svg.selectAll('.point') //point is used instead of circles, in case different shapes are used
-    .data(scatterData)
+  if (d3.select("#vis-container").attr("class") === "step-4") {
 
-//Create Circles
-    .transition()
-    .duration(1000)
-    .delay(function(d, i) {
-      return i / scatterData.length * 500;  // Dynamic delay (i.e. each item delays a little longer)
+    chart.points = chart.svg.selectAll('.point') //point is used instead of circles, in case different shapes are used
+        .data(scatterData);
+
+    chart.points.enter().append('circle')
+        .transition()
+        .duration(1000)
+        .delay(function(d, i) {
+        return i / scatterData.length * 500;  // Dynamic delay (i.e. each item delays a little longer)
+        })
+        .attr('class', 'point path')
+        .attr('r', 7)
+        .attr('cx', function (d) { return chart.x(d.pp_diff * (-1)); })
+        .attr('cy', function (d) { 
+          if (options.filtered === 'select_math') {
+            return chart.y(d.m_diff)
+          } else {
+            return chart.y(d.r_diff)
+          }
+          //return chart.y(filterData(d)); 
+        })
+        .style('opacity', function(d) {
+          if (d.r_diff == 0) {return "0";}
+         // if (isNaN(d.r_diff)) {return "0";}
+          else { if (d.m_diff == 0) {return "0";}
+        }
+          return "0.6";
+        })
+        .style("fill", circleFill)
+        .style("stroke", function (d) {
+        if ((options.filtered != 'select_math' && d.r_diff < 0) || (options.filtered === 'select_math' && d.m_diff < 0)) { 
+          return "#cc0000";
+        } else {
+            return "none";
+        } 
       })
-    .attr('cx', function (d) { return chart.x(d.pp_diff * (-1)); })
-    .attr('cy', function (d) { if (options.filtered === 'select_math') {
-      return chart.y(d.m_diff);
-      } else { return chart.y(d.r_diff); } 
-    })
-    .style("stroke", function (d) {
-      if ((options.filtered != 'select_math' && d.r_diff < 0) || (options.filtered === 'select_math' && d.m_diff < 0)) { 
-        return "#cc0000";
-      } else {
-          return "#697fd7";
-      } 
-    })
-    
-    
+        .style("stroke-width", "2")
 
+
+  //Create Circles
+    chart.points
+      .transition()
+      .duration(1000)
+      .delay(function(d, i) {
+        return i / scatterData.length * 500;  // Dynamic delay (i.e. each item delays a little longer)
+        })
+      .attr('cx', function (d) { return chart.x(d.pp_diff * (-1)); })
+      .attr('cy', function (d) { if (options.filtered === 'select_math') {
+        return chart.y(d.m_diff);
+        } else { return chart.y(d.r_diff); } 
+      })
+      .style("stroke", function (d) {
+        if ((options.filtered != 'select_math' && d.r_diff < 0) || (options.filtered === 'select_math' && d.m_diff < 0)) { 
+          return "#cc0000";
+        } else {
+            return "#697fd7";
+        } 
+      })
+    
+    
+  }
 
       //return chart.y(filterData(d)); 
   
 //  points.exit().remove();
-
-  }
+}
 
 
 
