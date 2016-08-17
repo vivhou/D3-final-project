@@ -5,9 +5,6 @@
   margin-top: 10px;
 }
 
-#step1 {
-  margin-left: 25px;
-}
 
 a {color: #666;}
 
@@ -47,246 +44,266 @@ a {color: #666;}
   position: absolute;
 }
     
-
-
-    h1 {
-      font-family: 'Quicksand', sans-serif;
-      text-align: center;
-      color: #697fd7;
-
-    }
-     h2 {
-      font-family: 'Quicksand', sans-serif;
-      text-align: center;
-      font-size: 18px;
-      color: #697fd7;
-      margin-top: 10px;
-      font-weight: bold;
-
-    }
-
-    body {
-      background-color: #e8eea8;
-      font-family: Lato;
-      color: #696969;
-      display: table;
-    }
-
-    .note {
-      color: #545454;
-      font-style: italic;
-      font-weight: bold;
-      font-size: 10px;
-      text-align: left;
-      position: fixed;
-      display: block;
-      bottom: 0;
-      left: 15;
-
-    }
-
-    .axis text {
-      font-size: 10px;
-    }
-
-    
-
-    .axis .labels {
-      font-size: 11px;
-      letter-spacing: 3px;
+ 
 
 
 
-    }
+h1 {
+  font-family: 'Quicksand', sans-serif;
+  text-align: center;
+  color: #697fd7;
+}
+ h2 {
+  font-family: 'Quicksand', sans-serif;
+  text-align: center;
+  font-size: 18px;
+  color: #697fd7;
+  margin-top: 10px;
+  font-weight: bold;
 
-    .axis path {
-      fill: "none";
-      stroke: #fff;
-    }
+}
 
-    path {
-      fill: none;
-      stroke: none;
-    }
+body {
+  background-color: #e8eea8;
+  font-family: Lato;
+  color: #696969;
+  display: table;
+  margin: 0px;
+  min-height: 100%;
+  width: 100%;
+}
 
-    .states {
-      fill: #333;
-    }
+.note {
+  color: #545454;
+  font-style: italic;
+  font-weight: bold;
+  font-size: 10px;
+  text-align: left;
+  position: fixed;
+  display: block;
+  bottom: 0;
+  margin-bottom: 30px;
+  left: 15;
+  margin-left: 20px;
 
-    .states :hover {
-      stroke: #333333;
-      stroke-width: 2.5px;
-    }
+}
 
-    .place,
-    .place-label {
-      fill: #444;
-      font-family: Helvetica;
-      font-weight: bold;
-      color: #545454;
-    }
-
-    p {
-      font-family: 'Lato', serif;
-      font-size: 14px;
-      margin-top: 20px;
-      margin-bottom: 20px;
-      text-align: center;
-      color: #666
-    }
-
-
-    text {
-      font-family: 'Lato', serif;
-      font-size: 12px;
-      pointer-events: none;
-      font-color: #696969;
-      align: left;
+.axis text {
+  font-size: 10px;
+}
 
 
-    }
-
-    .source {
-      text-align: left;
-      font-size: 10px;
-      font-style: italic;
-      margin-bottom: 25px;
-    }
-
-    p.tooltip_text {
-        font: 12px Lato, sans-serif;
-        margin: 0 0 .5em;
-        color: #666;
-    }
-    div.tooltip {   
-    position: absolute;         
-    text-align: center; 
-    vertical-align: middle;        
-    padding: 5px;               
-    background: white; 
-    border: 0px;        
-    border-radius: 6px;         
-    pointer-events: none;         
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    #legend {
-      border: none;
-
-    }
-    #legend text {
-      color: #fff;
-
-    }
-
-    .legend-key path {
-      display: none;
-    }
-
-    .legend-key text {
-      font-size: 1rem;
-      font-color: #696969;
-    }
-
-    .legend-key line {
-      stroke: #000;
-      shape-rendering: crispEdges;
-    }
-
-    /*Thanks to https://github.com/lvonlanthen/data-map-d3 */
-    .YlGnBu .q0-9{fill:#BC4963}
-    .YlGnBu .q1-9{fill:#C16579}
-    .YlGnBu .q2-9{fill:#d099a6}
-    .YlGnBu .q3-9{fill:#D3D3D3}
-    .YlGnBu .q4-9{fill:#c8e2de}
-    .YlGnBu .q5-9{fill:#A4D0C8}
-    .YlGnBu .q6-9{fill:#74CDBD}
-    .YlGnBu .q7-9{fill:#45CAB2}
-    .YlGnBu .q8-9{fill:#37a18e}
 
 
-    g.features {
-      stroke: #d8d8d8;
-      stroke-width: 0.5;
-    }
-
-    .caption {
-      fill: #696969;
-      size: 200%;
-      letter-spacing: 2px;
-      font-weight: bold;
+.axis .labels {
+  font-size: 11px;
+  letter-spacing: 3px;
 
 
-    }
+
+}
+
+.axis path {
+  fill: "none";
+  stroke: #fff;
+}
+
+path {
+  fill: none;
+  stroke: none;
+}
+
+.states {
+  fill: #333;
+}
+
+.states :hover {
+  stroke: #333333;
+  stroke-width: 2.5px;
+}
+
+.place,
+.place-label {
+  fill: #444;
+  font-family: Helvetica;
+  font-weight: bold;
+  color: #545454;
+}
+
+p {
+  font-family: 'Lato', serif;
+  font-size: 14px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #666
+}
 
 
-    .axis path,
-    .axis line {
-      fill: none;
-      stroke: #45cab2;
-      stroke-width: 2px;
-      shape-rendering: crispEdges;
-      opacity: 0.7;
-    }
-
-    .axis .minor line {
-      stroke: #45cab2;
-      stroke-dasharray: 2,2;
-      opacity: 0.5;
-    }
-
-    .axis .no-minor line {
-      stroke: #45cab2;
-      stroke-dasharray: 2,2;
-      opacity: 0;
-    }
+text {
+  font-family: 'Lato', serif;
+  font-size: 12px;
+  pointer-events: none;
+  font-color: #696969;
+  align: left;
 
 
-    .point {
-      stroke: #697fd7;
-      fill: #a5a5a5;
-      opacity: 0.7;
-      stroke-width: 2;
-    }
+}
 
-    .point2 {
-      stroke: none;
-      opacity: 0.7;
-    }
+.source {
+  text-align: left;
+  font-size: 10px;
+  font-style: italic;
+  margin-bottom: 25px;
+}
 
-    .svg-container {
-    display: inline-block;
-    position: absolute;
-    width: 100%;
-    padding-bottom: 100%; /* aspect ratio */
-    vertical-align: top;
-    overflow: hidden;
-    }
-    .svg-content-responsive {
-    display: inline-block;
-    position: absolute;
-    top: 10px;
-    left: 0;
-    }
+p.tooltip_text {
+    font: 12px Lato, sans-serif;
+    margin: 0 0 .5em;
+    color: #666;
+}
+div.tooltip {   
+position: absolute;         
+text-align: center; 
+vertical-align: middle;        
+padding: 5px;               
+background: white; 
+border: 0px;        
+border-radius: 6px;         
+pointer-events: none;         
+}
 
-  .controls-section {
-    position: relative;
-    bottom:-40px;
-  
-  }
+.hidden {
+  display: none;
+}
 
-  .btn-secondary {
-    background-color: #45CAB2;
-    color: #fff;
-  }
+#legend {
+  border: none;
+  margin-left: 20px;
 
-  .btn-warning {
-    background-color: #ffa500;
-    margin-bottom: 5px;
-  }
-  #heading-text {
-    margin-top: 50px;
-  }
+}
+#legend text {
+  color: #fff;
+
+}
+
+.legend-key path {
+  display: none;
+}
+
+.legend-key text {
+  font-size: 1rem;
+  font-color: #696969;
+}
+
+.legend-key line {
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+/*Thanks to https://github.com/lvonlanthen/data-map-d3 */
+.YlGnBu .q0-9{fill:#BC4963}
+.YlGnBu .q1-9{fill:#C16579}
+.YlGnBu .q2-9{fill:#d099a6}
+.YlGnBu .q3-9{fill:#D3D3D3}
+.YlGnBu .q4-9{fill:#c8e2de}
+.YlGnBu .q5-9{fill:#A4D0C8}
+.YlGnBu .q6-9{fill:#74CDBD}
+.YlGnBu .q7-9{fill:#45CAB2}
+.YlGnBu .q8-9{fill:#37a18e}
+
+
+g.features {
+  stroke: #d8d8d8;
+  stroke-width: 0.5;
+}
+
+.caption {
+  fill: #696969;
+  size: 200%;
+
+}
+
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #45cab2;
+  stroke-width: 2px;
+  shape-rendering: crispEdges;
+  opacity: 0.7;
+}
+
+.axis .minor line {
+  stroke: #45cab2;
+  stroke-dasharray: 2,2;
+  opacity: 0.5;
+}
+
+.axis .no-minor line {
+  stroke: #45cab2;
+  stroke-dasharray: 2,2;
+  opacity: 0;
+}
+
+
+.point {
+  stroke: #697fd7;
+  fill: #a5a5a5;
+  opacity: 0.7;
+  stroke-width: 2;
+}
+
+.point2 {
+  stroke: none;
+  opacity: 0.7;
+}
+
+.svg-container {
+display: block;
+position: absolute;
+width: 100%;
+padding-bottom: 100%; /* aspect ratio */
+vertical-align: top;
+overflow: hidden;
+align: center;
+}
+.svg-content-responsive {
+display: inline-block;
+position: absolute;
+top: 10px;
+left: 0;
+}
+
+.controls-section {
+position: relative;
+bottom:-40px;
+
+}
+
+.btn-secondary {
+background-color: #45CAB2;
+color: #fff;
+}
+
+.btn-warning {
+background-color: #ffa500;
+margin-bottom: 5px;
+}
+
+#heading-text {
+margin-top: 50px;
+width: 80%;
+margin-left: 20px;
+
+
+}
+
+#paragraph-text {
+width: 70%;
+margin-left: 36px;
+
+
+}
+
+

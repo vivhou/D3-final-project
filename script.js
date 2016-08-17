@@ -676,7 +676,7 @@ function Choropleth(states) {
   chart.g.append("text")
       .attr("class", "caption")
       .attr("y", -6)
-      .attr("x", 100)
+      .attr("x", 75)
 
   chart.legendWidth = 150;
 
@@ -788,7 +788,7 @@ Choropleth.prototype.update = function () {
 //ADDING LEGEND LABEL
 
     var legendText = chart.g.selectAll('text.caption')
-        .text("Percent Change in " + selectedButton() + "Profiency" );
+        .text("Percent Change in " + selectedButton() + "Proficiency" );
 
 
     // We set the calculated domain as tickValues for the legend axis.
@@ -890,7 +890,7 @@ function Scatterplot(data) {
      // .attr('width', width + margin.left + margin.right)
      // .attr('height', height + margin.top + margin.bottom)
       .append('g')
-      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+      .attr('transform', 'translate(' + 8*margin.left + ',' + margin.right + ')');
 
  
     // SCALES
@@ -968,8 +968,8 @@ function Scatterplot(data) {
     gy.selectAll("g").filter(function(d) { return d;})
         .classed("minor", true);
     gy.selectAll("text") 
-        .attr("x", 14)
-        .attr("dy", -2)
+        .attr("x", 0)
+        .attr("y", -2)
         .style("fill", function(d) { if (d <0) {
           return "red"; }
           else { return "black"; }
@@ -978,7 +978,7 @@ function Scatterplot(data) {
         .attr('class', 'labels')
         .attr("transform", "rotate(-90)")
         .style("fill", "black") 
-        .attr("y", - (height*.03))
+        .attr("y", - (height*.08))
         .attr("x", - (width/3))
         .attr("dy", ".71em")
         .style("text-anchor", "middle")
@@ -1025,7 +1025,7 @@ function Scatterplot(data) {
 
     chart.g = chart.legendScatter.append("g")
       .attr("class", "legend")
-      .attr('transform', 'translate(' + -80 + ',' + 30 + ')');    
+      .attr('transform', 'translate(' + 0 + ',' + 30 + ')');    
       
     
     chart.g.selectAll('rect')
