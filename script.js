@@ -525,7 +525,7 @@ FirstScatterplot.prototype.update =function (data) {
           return parseInt(d.pp_expense_11*1.05); //need to multiply by 1.05 to extend x-axis and keep circle on graph
         })
         chart.x.domain([0, x1])  
-        var formatThousand = d3.format(".0s");
+        var formatThousand = d3.format(".2s");
         var formatThousand_x = function(d) { if (d > 0) {
           return "$" + formatThousand(d/1000) + "k"; }
         };
