@@ -294,7 +294,7 @@ FirstScatterplot = function (data) {
     var gx = chart.svg.append("g")
         .attr("class", "x axis")
         .attr("transform", "translate(0," + (height) + ")")
-        .call(chart.xAxis) 
+        .call(chart.xAxis); 
     gx.selectAll("g").filter(function(d) { return d;}) //need to use filter since true values do not return 0
         .classed("no-minor", true);
     gx.selectAll("text")
@@ -444,8 +444,10 @@ FirstScatterplot.prototype.update =function (data) {
         x1 = d3.max(chart.data, function (d) { 
           return parseInt(d.pp_expense_11*1.05); //need to multiply by 1.05 to extend x-axis and keep circle on graph
         })
-        chart.x.domain([0, x1])  
-        var formatThousand = d3.format(".0s");
+        chart.x = chart.x
+                  .domain([0, x1]);
+
+        var formatThousand = d3.format(".2s");
         var formatThousand_x = function(d) { if (d > 0) {
           return "$" + formatThousand(d/1000) + "k"; }
         };
@@ -455,7 +457,7 @@ FirstScatterplot.prototype.update =function (data) {
         var formatPoints = d3.format("");
         chart.xAxis = d3.axisBottom()
             .scale(chart.x)
-       //     .ticks(10)
+            .ticks(10)
             //.orient("top")
             .tickSize(-height) 
             .tickFormat(formatThousand_x);
