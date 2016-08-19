@@ -68,63 +68,62 @@ var path = d3.geoPath()
   .projection(projection);
    
 
-  queue()
-    .defer(d3.json, "../state_squares.geojson")
-    .defer(d3.csv, "/data/map_data.csv")
-    .awaitAll(function(error, results) {
-      if (error) { throw error; }
 
-      for (var i = 0; i < results[1].length; i++) {
-          var state = results[1][i].state;
-          var math_diff = results[1][i].math_diff;
-          var read_diff = results[1][i].read_diff;
-          var pp_diff = results[1][i].pp_diff;
-          var poverty = results[1][i].poverty;
-          var m_diff_white = results[1][i].m_diff_white;
-          var m_diff_black = results[1][i].m_diff_black;
-          var m_diff_his = results[1][i].m_diff_his;
-          var r_diff_white = results[1][i].r_diff_white;
-          var r_diff_black = results[1][i].r_diff_black;
-          var r_diff_his = results[1][i].r_diff_his;
-          var state_name = results[1][i].state_name;
-          var pp_expense_11 = results[1][i].pp_expense_11;
-          var m_all_11 = results[1][i].m_all_11;
+    d3.json("../state_squares.geojson", function(error1, results1) {
+    d3.csv("/data/map_data.csv", function(error2, results2) {
+
+      for (var i = 0; i < results2.length; i++) {
+          var state = results2[i].state;
+          var math_diff = results2[i].math_diff;
+          var read_diff = results2[i].read_diff;
+          var pp_diff = results2[i].pp_diff;
+          var poverty = results2[i].poverty;
+          var m_diff_white = results2[i].m_diff_white;
+          var m_diff_black = results2[i].m_diff_black;
+          var m_diff_his = results2[i].m_diff_his;
+          var r_diff_white = results2[i].r_diff_white;
+          var r_diff_black = results2[i].r_diff_black;
+          var r_diff_his = results2[i].r_diff_his;
+          var state_name = results2[i].state_name;
+          var pp_expense_11 = results2[i].pp_expense_11;
+          var m_all_11 = results2[i].m_all_11;
 
 
 
-      for (var j = 0; j < results[0].features.length; j++) {
+      for (var j = 0; j < results1.features.length; j++) {
 
-        if (state == results[0].features[j].properties.abbr) {
-          results[0].features[j].properties.math_diff = math_diff;
-          results[0].features[j].properties.read_diff = read_diff;
-          results[0].features[j].properties.pp_diff = pp_diff;
-          results[0].features[j].properties.poverty = poverty;
-          results[0].features[j].properties.m_diff_white = m_diff_white;
-          results[0].features[j].properties.m_diff_black = m_diff_black;
-          results[0].features[j].properties.m_diff_his = m_diff_his;
-          results[0].features[j].properties.r_diff_white = r_diff_white;
-          results[0].features[j].properties.r_diff_black = r_diff_black;
-          results[0].features[j].properties.r_diff_his = r_diff_his;
-          results[0].features[j].properties.state_name = state_name;
+        if (state == results1.features[j].properties.abbr) {
+          results1.features[j].properties.math_diff = math_diff;
+          results1.features[j].properties.read_diff = read_diff;
+          results1.features[j].properties.pp_diff = pp_diff;
+          results1.features[j].properties.poverty = poverty;
+          results1.features[j].properties.m_diff_white = m_diff_white;
+          results1.features[j].properties.m_diff_black = m_diff_black;
+          results1.features[j].properties.m_diff_his = m_diff_his;
+          results1.features[j].properties.r_diff_white = r_diff_white;
+          results1.features[j].properties.r_diff_black = r_diff_black;
+          results1.features[j].properties.r_diff_his = r_diff_his;
+          results1.features[j].properties.state_name = state_name;
 
           break;
         }
       }
     }
-
+  
     
-    choropleth = new Choropleth(results[0]);
+    choropleth = new Choropleth(results1);
     choropleth.update();
 
-    scatterplot = new Scatterplot(results[1]);
+    scatterplot = new Scatterplot(results2);
     scatterplot.update();
 
-console.log("hi")
-    firstScatterplot = new FirstScatterplot(results[1]);
+    firstScatterplot = new FirstScatterplot(results2);
     firstScatterplot.update();
     
    
     });
+});
+
 
 console.log("after");
 
