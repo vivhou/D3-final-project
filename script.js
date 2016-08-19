@@ -31,13 +31,13 @@ d3.select('#sort_read').on('click', function () {
 
 //MOUSEOVER: MOVE POINTS TO FRONT
 
-d3.selection.prototype.moveToFront = function() {  ///thanks to https://gist.github.com/trtg/3922684
+d3.selection.prototype.moveToFront = function() {  //thanks to https://gist.github.com/trtg/3922684
   return this.each(function(){
     this.parentNode.appendChild(this);
     }); 
   };
 
-d3.selection.prototype.moveToBack = function() { 
+d3.selection.prototype.moveToBack = function() { //thanks to https://gist.github.com/trtg/3922684
   return this.each(function() { 
   var firstChild = this.parentNode.firstChild; 
     if (firstChild) { 
@@ -653,7 +653,7 @@ function Choropleth(states) {
 
   chart.g = chart.legendSvg.append('g')
     .attr("class", "legend-key YlGnBu")
-    .attr("transform", "translate(" + 20 + "," + 20 + ")");
+    .attr("transform", "translate(" + 20 + "," + 50 + ")");
 
   chart.g.selectAll("rect")
     .data(quantize.range().map(function(d) {
@@ -681,6 +681,28 @@ function Choropleth(states) {
       .attr("x", 75)
 
   chart.legendWidth = 150;
+
+//APPEND RECT TO NOTE
+
+  chart.note = d3.select('#choropleth_note')
+      .append('svg')
+      .attr('transform', 'translate(' + 0 + ',' + 30 + ')');
+  
+
+  chart.rectangle= chart.note.append('rect')
+      .attr("x", 10)
+      .attr("y", 15)
+      .attr("width", 10)
+      .attr("height", 10)
+      .style("fill", "#545454")
+
+   chart.text = chart.note.append('text')
+      .attr("x", 23)
+      .attr("y", 23)
+      .text("Top 10 states with highest average poverty rate (2005-11) are bordered in gray")
+      .style("fill", "#696969")
+      .style('font-size', '8px'); 
+
 
 //TOOLTIP
 
@@ -808,7 +830,7 @@ Choropleth.prototype.update = function () {
 
     format = d3.format(",d");
     chart.map
-        .on("mouseover", function(d, i) {   
+        .on("mouseover", function(d, i) {   //thanks to Alex for the tooltip
             chart.tooltip.transition()        
                 .duration(200)      
                 .style("opacity", 0.8)
@@ -828,13 +850,10 @@ Choropleth.prototype.update = function () {
                 .moveToFront()
                 .transition()
                 .duration(300)
-                .attr('r', 9) //make corresponding circles stand out 
+                .attr('r', 7) //make corresponding circles stand out 
               d3.selectAll('.path')
                   .style("opacity", function(d) {
                     console.log(d.state_name == id)
-                   return d.state_name == id ? 1 : 0.2;
-                  })
-                  .style("stroke", function(d) {
                    return d.state_name == id ? 1 : 0.2;
                   });
         })        
@@ -846,7 +865,7 @@ Choropleth.prototype.update = function () {
             d3.selectAll('.path')
               .moveToBack()
               .style("opacity", 0.6)
-              .attr('r', 7); //restore radius size
+              .attr('r', 5); //restore radius size
         });
   }
 
@@ -910,9 +929,8 @@ function Scatterplot(data) {
 
     chart.y = d3.scaleLinear()
      // .domain(d3.extent(data, function (d) { return d.Math_proficient/100; })) 
-      .domain([-y0, y0])
-      .range([height, 0])
-      .nice();
+      .domain([-10, y0])
+      .range([height, 0]);
 
     // AXES
 
@@ -1080,7 +1098,7 @@ Scatterplot.prototype.update = function() {
         return i / scatterData.length * 500;  // Dynamic delay (i.e. each item delays a little longer)
         })
         .attr('class', 'point path')
-        .attr('r', 7)
+        .attr('r', 5)
         .attr('cx', function (d) { return chart.x(d.pp_diff * (-1)); })
         .attr('cy', function (d) { 
           if (options.filtered === 'select_math') {
@@ -1105,8 +1123,7 @@ Scatterplot.prototype.update = function() {
             return "none";
         } 
       })
-        .style("stroke-width", "2")
-
+       .style("stroke-width", "1.5")
 
   //Create Circles
     chart.points

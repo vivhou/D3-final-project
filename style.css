@@ -44,9 +44,6 @@ a {color: #666;}
   position: absolute;
 }
     
- 
-
-
 
 h1 {
   font-family: 'Quicksand', sans-serif;
@@ -79,14 +76,14 @@ body {
   font-weight: bold;
   font-size: 10px;
   text-align: left;
-  position: fixed;
+  position: absolute;
   display: block;
-  bottom: 0;
-  margin-bottom: 30px;
   left: 15;
-  margin-left: 20px;
+  margin-left: 35px;
 
 }
+
+
 
 .axis text {
   font-size: 10px;
