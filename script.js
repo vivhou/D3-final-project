@@ -341,16 +341,21 @@ FirstScatterplot.prototype.update =function (data) {
     var chart = this;
 
     firstScatterData = chart.data.slice();
- 
+
+    var formatThousand = d3.format(".2s");
+    var formatThousand_x = function(d) { if (d > 0) {
+        return "$" + formatThousand(d/1000) + "k"; }
+    };
 
 //IF STATEMENT FOR STEPS ONE AND TWO
     if (d3.select("#vis-container").attr("class") === "step-1") {
+
 
 //STEP ONE SCALE
         chart.x = d3.scaleLinear()
           .domain([20000, d3.max(chart.data, function (d) { return parseInt(d.pp_expense_11); })]) 
           .range([0, width])
-          .nice();
+          .nice()
   //NEED TO CALL THE X-AXIS SO THAT IT RESCALES BACK TO ORIGINAL
         chart.xAxis = d3.axisBottom()
           .scale(chart.x)
@@ -446,10 +451,6 @@ FirstScatterplot.prototype.update =function (data) {
         chart.x = chart.x
                   .domain([0, x1]);
 
-        var formatThousand = d3.format(".2s");
-        var formatThousand_x = function(d) { if (d > 0) {
-          return "$" + formatThousand(d/1000) + "k"; }
-        };
 
       //CHANGING X-AXIS
 
@@ -477,6 +478,10 @@ FirstScatterplot.prototype.update =function (data) {
           .attr('class', 'point path')
           .attr('r', function(d) { return d.poverty * 120})
           .merge(points)
+          .style("fill", function(d) { if (d.state === "DC" || d.state == "NY") { return "#ffa500"; } 
+            else {return "#a5a5a5"; }
+          }) 
+          
       //TOOLTIP
           .on("mouseover", function(d) { 
             var sel = d3.select(this);
@@ -524,10 +529,7 @@ FirstScatterplot.prototype.update =function (data) {
           return parseInt(d.pp_expense_11*1.05); //need to multiply by 1.05 to extend x-axis and keep circle on graph
         })
         chart.x.domain([0, x1])  
-        var formatThousand = d3.format(".2s");
-        var formatThousand_x = function(d) { if (d > 0) {
-          return "$" + formatThousand(d/1000) + "k"; }
-        };
+       
 
       //CHANGING X-AXIS
 
