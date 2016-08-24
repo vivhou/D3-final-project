@@ -69,8 +69,8 @@ var path = d3.geoPath()
    
 
 
-    d3.json("../state_squares.geojson", function(error1, results1) {
-    d3.csv("/data/map_data.csv", function(error2, results2) {
+    d3.json("state_squares.geojson", function(error1, results1) {
+    d3.csv("data/map_data.csv", function(error2, results2) {
 
       for (var i = 0; i < results2.length; i++) {
           var state = results2[i].state;
